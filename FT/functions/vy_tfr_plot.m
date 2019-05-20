@@ -148,9 +148,6 @@ plot([freq_of_interest freq_of_interest], [0 clim],...
 % set(gca, 'YAxisLocation', 'right')
 
 %%
-
-
-%%==================================================
 cfg = [];
 cfg.baseline = [-0.3 0];
 cfg.baselinetype = 'absolute';

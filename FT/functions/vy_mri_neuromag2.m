@@ -24,8 +24,7 @@ else
         cfg.fiducial.xzpoint  = fid.NCS.IH;
         cfg.fiducial.right   = fid.SCS.RPA;
         mri_realigned     = ft_volumerealign(cfg, individual_mri);
-        %%
-        
+        %%     
         cfg = [];
         cfg.method = 'fiducial';
         cfg.coordsys = 'neuromag';

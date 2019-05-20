@@ -54,7 +54,7 @@ figure,plot(cfg_main.data.time,stat),hold on
 text(lsor(1:peaksel),psor(1:peaksel),num2str((1:peaksel)'));
 grid
 box off
-xlabel('Time'); ylabel('Stats (normal)')
+xlabel('Time'); ylabel('Stats')
 set(gcf, 'Position',  [500, 500, 1200, 500]);
 
 [~,lsor1] = findpeaks(stat,1:length(cfg_main.data.time),'SortStr','descend');

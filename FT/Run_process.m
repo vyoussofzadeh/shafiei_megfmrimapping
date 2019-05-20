@@ -8,7 +8,7 @@ addpath(genpath('./functions'));
 addpath(genpath('./Data_file'));
 
 cd_org = cd;
-cd_tools = '/data/MEG/Vahab/Scripts/Vahab/Scripts/tools';
+cd_tools = '/data/MEG/Vahab/Github/MCW-MEGlab/tools';
 cd (cd_tools)
 
 vy_init

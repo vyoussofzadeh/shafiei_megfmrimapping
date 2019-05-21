@@ -8,7 +8,6 @@ if ~isempty(d)
     fid.SCS = SCS;
     fid.NCS = NCS;
     mripfile = fullfile(mridir,'T1.nii');
-    outputmridir = fullfile(outdir,'ft_process',yttag, subj,'anat'); % output dir
     if exist(outputmridir, 'file') == 0, mkdir(outputmridir); end
     
     cfg = [];

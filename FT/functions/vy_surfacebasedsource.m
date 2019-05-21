@@ -1,7 +1,7 @@
 function vy_surfacebasedsource(cfg_main)
 
-if exist(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj,'.mat']), 'file') == 2
-    load(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj,'.mat']));
+if exist(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, cfg_main.task, '.mat']), 'file') == 2
+    load(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, cfg_main.task, '.mat']));
 else
     
     % BS2FT
@@ -22,8 +22,7 @@ else
     % headshape = ft_read_headshape(hsfile);
     % headshape = ft_convert_units(headshape,'mm');
     % ft_plot_headshape(headshape);
-    save(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj,'.mat']), 'individual_grid','individual_headmodel');
-    
+    save(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, cfg_main.task, '.mat']), 'individual_grid','individual_headmodel');    
 end
 
 savepath = fullfile(cfg_main.outputdir);

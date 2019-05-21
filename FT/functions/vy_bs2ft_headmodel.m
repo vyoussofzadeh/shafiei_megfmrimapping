@@ -12,7 +12,7 @@
 % headshape = ft_read_headshape(hsfile);
 % headshape = ft_convert_units(headshape, 'mm');
 
-function [individual_headmodel, individual_grid] = vy_bs2ft_headmodel(t_data,sourcemodel)
+function [individual_headmodel, individual_grid] = vy_bs2ft_headmodel(data,sourcemodel)
 
 % create the source model
 sourcemodel_ft = [];
@@ -42,7 +42,7 @@ cfg.senstype    = 'MEG';
 cfg.grid        = sourcemodel_ft;
 cfg.headmodel   = hdm;
 cfg.channel     = {'MEG'};
-lf              = ft_prepare_leadfield(cfg, t_data.app);
+lf              = ft_prepare_leadfield(cfg, data);
 
 individual_grid = lf;
 individual_headmodel = hdm;

@@ -16,6 +16,8 @@ vy_init
 datadir = '/data/MEG/Clinical/MEG';
 cd(cd_org)
 
+addpath(genpath(cd_org));
+
 outdir = '/data/MEG/Clinical';
 % cd(outdir)
 
@@ -58,19 +60,18 @@ switch analysis
             case 3
                 mtag = 'dics';
         end
+        %-
+        disp('1: Low-res grid')
+        disp('2: High-res grid')
+        meshgrid = input('Eneter the mesh grid: ');
 end
-
-%%
-disp('1: Low-res grid')
-disp('2: High-res grid')
-meshgrid = input('Eneter the mesh grid: ');
 
 %%
 disp('1: 2019')
 disp('2: 2018');
 disp('3: 2017');
 disp('4: older');
-year = input('Year data acquired: ');
+year = input('Year data was acquired: ');
 
 clear ytag;
 switch year
@@ -113,14 +114,19 @@ lay = ft_prepare_layout(cfg);
 % ft_layoutplot(cfg);
 
 %%
-for i = 1:size(datafile1,1)
-    
+for i = 2:size(datafile1,1)
+    %%
     datafile = datafile1{i}; % spm_select(inf,'dir','Select MEG folder'); % e.g. H:\VNS\MEG\C-105\CRM\1
     Index = strfind(datafile, '/');
     subj = datafile(Index(5)+1:Index(6)-1);
     Date  = datafile(Index(6)+1:Index(7)-1);
     disp(['subj:',subj])
     disp(['Date:',Date])
+    
+    %-elec/grad
+    sens = ft_read_sens(datafile);
+    sens = ft_convert_units(sens,'mm');
+    
     %%
     if year==4
         yttag = 'older';
@@ -135,37 +141,32 @@ for i = 1:size(datafile1,1)
     disp(['outputdir:',outd.sub])
     
     %% Preprocesssing
-    Run_process
+    Run_preprocess
     
-    %%
+    %% FFT & TFR
     Run_freq
     
-    %% elec/grad
-    sens = ft_read_sens(datafile);
-    sens = ft_convert_units(sens,'mm');
-    % data.sens = sens;
-    
-    %% timelock
+    %% Timelock
+%     toi = [-0.3,0;0.7,1.8];
+    toi = [-0.3,0;0.7,1.8];
     Run_time
     
     %% Grand Mean
-    a_data = vy_ave(cln_data);
-    savepath = fullfile(outd.sub,'Timelock');
-    if exist(savepath, 'file') == 0, mkdir(savepath), end
-    cfg = [];
-    cfg.savefile = fullfile(savepath,['gmean_',subj,'.mat']);
-    cfg.saveflag = 1;
-    cfg.lay  = lay;
-    vy_ave_plot(cfg, a_data);
+    Run_grandmean
     
+    %%
+    outputmridir = fullfile(outdir,'ft_process',yttag, subj,'anat'); % output dir
+%%
     switch analysis
         case 1
             %% Surface-based analysis
             outd.sourcesuf = fullfile(outd.sub,mtag);
             cfg = [];
+            cfg.task = tag;
             cfg.outputdir = outd.sourcesuf;
             cfg.subj = subj;
             cfg.data = t_data.pst;
+            cfg.datadir = datadir;
             cfg.outputmridir = outputmridir;
             cfg.peaksel = 4;
             vy_surfacebasedsource(cfg)

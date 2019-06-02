@@ -9,8 +9,7 @@ function vy_network_light1(cfg_main, t_data)
 restoredefaultpath
 addpath(genpath(cfg_main.p.ft_old));
 addpath(genpath(cfg_main.p.hcp_path));
-addpath(genpath([cfg_main.p.cd_org,'/functions']));
-addpath(genpath([cfg_main.p.cd_org,'/Data_file']));
+addpath(genpath(cfg_main.p.cd_org));
 
 %%
 mtd = 'plv';
@@ -40,10 +39,10 @@ network_diff_lcmv.eigenvector_cent(network_diff_lcmv.eigenvector_cent<0)=0;
 
 %% revert to the newer ft!
 restoredefaultpath
-addpath(genpath(cfg_main.p.ft_path));
+addpath((cfg_main.p.ft_path));
+ft_defaults
 addpath(genpath(cfg_main.p.hcp_path));
-addpath(genpath([cfg_main.p.cd_org,'/functions']));
-addpath(genpath([cfg_main.p.cd_org,'/Data_file']));
+addpath(genpath(cfg_main.p.cd_org));
 
 %%
 savepath = fullfile(cfg_main.outputdir);
@@ -119,11 +118,11 @@ vy_mapvisualisation(network_int_lcmv,gtm,0.6, []);
 % addpath(genpath([cfg_main.p.cd_org,'/functions']));
 % addpath(genpath([cfg_main.p.cd_org,'/Data_file']));
 
-
-
 %% parcellation - aal (132 rois)
+
 % network_diff_lcmv.eigenvector_cent = (network_diff_lcmv.eigenvector_cent)./max(network_diff_lcmv.eigenvector_cent);
-% [~, data_intpar, coor] = vy_parcellate(network_diff_lcmv, atlas, gtm);
+% atlas = ft_read_atlas('/data/MEG/Vahab/Github/MCW-MEGlab/tools/ft_packages/fieldtrip_20190419/template/atlas/brainnetome/BNA_MPM_thr25_1.25mm.nii');
+% [~, data_intpar, coor] = vy_parcellate(network_diff_lcmv, cfg_main.atlas, gtm); % this part works with ft 2018 only!
 % data_intpar.eigenvector_centdimord = 'chan';
 %
 

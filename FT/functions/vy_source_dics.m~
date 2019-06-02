@@ -111,49 +111,49 @@ vy_mapvisualisation(source_int_dics,'pow',0.6, []);
 % hcp_write_figure([savepath,'.png'], gcf, 'resolution', 300);
 
 %%
-% load('cortex_inflated_shifted.mat') 
-% % ft_sourceplot configuration
-% cfg               = [];
-% cfg.funparameter  = 'pow';
-% cfg.maskparameter = 'pow';
-% cfg.maskstyle     = 'colormix';
-% cfg.method        = 'surface';
-% cfg.funcolormap   = flipud(brewermap(65, 'RdBu'));
-% cfg.camlight      = 'no';
-% cfg.colorbar      = 'yes';
-% 
-% opacityratio      = 0.5;
-% 
-% % general fig
-% cfg.funcolorlim   = 'maxabs';
-% 
-% sp        = keepfields(source_int_dics, {'pow' 'time' 'dimord'});
-% % sp.stat   = mean(s.stat.*double(s.posclusterslabelmat==1), 3);
-% sp.dimord = 'pos_time';
-% sp.time   = 0;
-% sp.pos    = ctx.pos;
-% sp.tri    = ctx.tri;
-% % Time slices
-% % times           = [1 2 3 4];
-% maxabs          = max(abs(source_int_dics.pow(:)));
-% cfg.funcolorlim = [-maxabs maxabs];
-% 
-% % lateral side
-% cfg.opacitylim = cfg.funcolorlim.*opacityratio;
-% ft_sourceplot(cfg, source_int_dics);
-% 
-% view([90 0]); camlight; material dull; title('test');
+load('cortex_inflated_shifted.mat') 
+% ft_sourceplot configuration
+cfg               = [];
+cfg.funparameter  = 'pow';
+cfg.maskparameter = 'pow';
+cfg.maskstyle     = 'colormix';
+cfg.method        = 'surface';
+cfg.funcolormap   = flipud(brewermap(65, 'RdBu'));
+cfg.camlight      = 'no';
+cfg.colorbar      = 'yes';
+
+opacityratio      = 0.5;
+
+% general fig
+cfg.funcolorlim   = 'maxabs';
+
+sp        = keepfields(source_int_dics, {'pow' 'time' 'dimord'});
+% sp.stat   = mean(s.stat.*double(s.posclusterslabelmat==1), 3);
+sp.dimord = 'pos_time';
+sp.time   = 0;
+sp.pos    = ctx.pos;
+sp.tri    = ctx.tri;
+% Time slices
+% times           = [1 2 3 4];
+maxabs          = max(abs(source_int_dics.pow(:)));
+cfg.funcolorlim = [-maxabs maxabs];
+
+% lateral side
+cfg.opacitylim = cfg.funcolorlim.*opacityratio;
+ft_sourceplot(cfg, source_int_dics);
+
+view([90 0]); camlight; material dull; title('test');
 
 %%
-% m.tri = ctx.tri;
-% m.pos = ctx.pos;
-% 
-% 
-% figure;
-% set(gcf,'color','w');
-% ft_plot_mesh(m, 'vertexcolor', double(ba42)); colormap parula
-% view([110 10]);
-% l = camlight;
-% material dull;
+m.tri = ctx.tri;
+m.pos = ctx.pos;
+
+
+figure;
+set(gcf,'color','w');
+ft_plot_mesh(m, 'vertexcolor', double(ba42)); colormap parula
+view([110 10]);
+l = camlight;
+material dull;
 
 

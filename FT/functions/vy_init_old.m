@@ -4,9 +4,8 @@ cd_org = cd;
 addpath(genpath(cd_org));
 
 %- fieldtrip
-% ft_path = fullfile(cfg.path_tools,'/ft_packages/fieldtrip_master');
-% ft_path = fullfile(cfg.path_tools,'/ft_packages/fieldtrip_20190419');
-ft_path = ('/data/MEG/Vahab/Github/fieldtrip');
+% ft_path = fullfile(cfg.path_tools,'/ft packages/fieldtrip-master');
+ft_path = fullfile(cfg.path_tools,'/ft_packages/fieldtrip_20190419');
 
 addpath(ft_path);
 ft_defaults
@@ -43,7 +42,6 @@ spm_path = fullfile(cfg.path_tools,'SPM/spm12');
 spmbf_path = fullfile(cfg.path_tools,'Beamforming');
 
 %%
-allpath.path_tools = cfg.path_tools;
 allpath.cd_org = cd_org;
 allpath.ft_path = ft_path;
 allpath.ft_old = ft_old;

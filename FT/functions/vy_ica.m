@@ -12,11 +12,14 @@ cfg.component = 1:n;       % specify the component(s) that should be plotted
 cfg.layout    = lay;
 cfg.comment   = 'no';
 ft_topoplotIC(cfg, comp)
+colormap(brewermap(256, '*RdYlBu'));
+
 
 cfg = [];
 cfg.viewmode = 'component';
 cfg.layout = lay;
 ft_databrowser(cfg, comp);
+colormap(brewermap(256, '*RdYlBu'));
 % set(gcf, 'Position', [600   600   700   500]);
 
 %%
@@ -46,6 +49,7 @@ for r=1:n
     subplot(nby1,nby2,r);set(gca,'color','none');
     ft_singleplotER(cfg,freq);
 end
+colormap(brewermap(256, '*RdYlBu'));
 set(gcf, 'Position', [800   600   800   500]);
 
 end

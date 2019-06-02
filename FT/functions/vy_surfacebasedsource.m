@@ -1,12 +1,13 @@
-function vy_surfacebasedsource(cfg_main)
+function  [source, individual_headmodel, individual_grid, sourcemodel] = vy_surfacebasedsource(cfg_main)
 
-if exist(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, cfg_main.task, '.mat']), 'file') == 2
-    load(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, cfg_main.task, '.mat']));
+if exist(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, '_', cfg_main.task, '.mat']), 'file') == 2
+    load(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, '_', cfg_main.task, '.mat']));
 else
     
     % BS2FT
     pialdir = fullfile(cfg_main.datadir,cfg_main.subj,'brainstorm_db/anat',cfg_main.subj,'tess_cortex_pial_low.mat');
     sourcemodel = ft_read_headshape(pialdir);
+    
     %     figure
     %     ft_plot_mesh(sourcemodel, 'vertexcolor', sourcemodel.curv)
     
@@ -22,9 +23,18 @@ else
     % headshape = ft_read_headshape(hsfile);
     % headshape = ft_convert_units(headshape,'mm');
     % ft_plot_headshape(headshape);
-    save(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, cfg_main.task, '.mat']), 'individual_grid','individual_headmodel');    
+    save(fullfile(cfg_main.outputmridir,['surfanat_',cfg_main.subj, '_', cfg_main.task, '.mat']), 'individual_grid','individual_headmodel','sourcemodel');
 end
 
+%%
+% figure; ft_plot_mesh(individual_grid, 'edgecolor', 'k'); camlight
+% 
+% figure; hold on
+% ft_plot_vol(individual_headmodel, 'facealpha', 0.5, 'edgecolor', 'none');
+% ft_plot_mesh(individual_grid, 'edgecolor', 'k'); camlight
+
+
+%%
 savepath = fullfile(cfg_main.outputdir);
 if exist(savepath, 'file') == 0, mkdir(savepath), end
 
@@ -35,11 +45,45 @@ cfg.grid          = individual_grid;
 cfg.headmodel     = individual_headmodel;
 cfg.mne.lambda    = 3;
 cfg.mne.scalesourcecov = 'yes';
+% cfg.mne.normalize = 'yes';
+% cfg.mne.prewhiten = 'yes';
+% cfg.mne.keepfilter= 'yes';
+% cfg.mne.projectnoise = 'yes';
+% cfg.projectmom = 'yes';
 source            = ft_sourceanalysis(cfg,cfg_main.data);
 m = source.avg.pow;
 [~,~,stats] = anova1(m, [],'off');
 
 % figure, plot(cfg_main.data.time,stats.means), xlabel('time'); ylabel('Stats')
+
+%%
+% remove center of head bias by using the neural activity index (NAI)
+% save into single structure to save memory
+source = ft_struct2single(source);
+
+%%
+% cfg = [];
+% cfg.projectmom = 'yes';
+% msource  = ft_sourcedescriptives(cfg,source);
+
+%%
+% cfg = [];
+% cfg.funparameter = 'pow';
+% ft_sourcemovie(cfg,source);
+
+%%
+% cfg=[];
+% cfg.method='eloreta';
+% cfg.headmodel=individual_headmodel;
+% cfg.grid=individual_grid;
+% cfg.projectnoise='yes';
+% cfg.keepcsd='yes';
+% cfg.eloreta.projectnoise='yes';
+% cfg.eloreta.keepcsd='yes';
+% cfg.eloreta.keepmom='yes';
+% cfg.eloreta.lambda=1e-5;
+% cfg.lambda=cfg.eloreta.lambda;
+% source=ft_sourceanalysis(cfg,cfg_main.data);
 
 %%
 peaksel = cfg_main.peaksel;
@@ -53,7 +97,7 @@ figure,plot(cfg_main.data.time,stat),hold on
 text(lsor(1:peaksel),psor(1:peaksel),num2str((1:peaksel)'));
 grid
 box off
-xlabel('Time'); ylabel('Stats (normal)')
+xlabel('Time (sec)'); ylabel('Stats (normal)')
 set(gcf, 'Position',  [500, 500, 1200, 500]);
 
 [~,lsor1] = findpeaks(stat,1:length(cfg_main.data.time),'SortStr','descend');
@@ -63,15 +107,15 @@ hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
 
 %%
 views =[180,0;0,0;90,0;180,90];
-
 for peaknum=1:peaksel
     figure,
-    for i=1:4
+    for i=1:peaksel
         subplot(2,2,i)
         bnd.pnt = individual_grid.pos;
         bnd.tri = individual_grid.tri;
         bnd.funcolormap =  brewermap(256, '*RdYlBu');
-        m1 = source.avg.pow(:,lsor1(peaknum)); m1 = (m1 - min(m1(:))) ./ (max(m1(:)) - min(m1(:))); %
+        m1 = m(:,lsor1(peaknum));
+        m1 = (m1 - min(m1(:))) ./ (max(m1(:)) - min(m1(:))); %
         ft_plot_mesh(bnd, 'vertexcolor', m1, 'maskstyle', 'opacity');
         view(views(i,:))
     end
@@ -79,8 +123,9 @@ for peaknum=1:peaksel
     colormap(brewermap(256, '*RdYlBu'));
     mtit([num2str(peaknum),': ',num2str(lsor(peaknum)),' Sec'],'fontsize',14,'color',[0 0 0],'xoff',0,'yoff',0);
     savefig = fullfile(savepath,['MNE_peak',num2str(peaknum)]);
-    hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300); 
+    hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
 end
+
 
 %%
 % figure,
@@ -101,15 +146,15 @@ end
 
 %%
 % [mx, idx] = max(stats.means);
-% 
+%
 % m1 = source.avg.pow(:,idx); % plotting the result at 400 ms
 % % m1 = source.avg.pow(:,651); % plotting the result at 400 ms
 % % m1 = source.avg.pow(:,110); % plotting the result at 400 ms
 % % m1 = source.avg.pow(:,910); % plotting the result at 400 ms
 % % m1 = source.avg.pow(:,545); % plotting the result at 400 ms
-% 
+%
 % m1 = (m1 - min(m1(:))) ./ (max(m1(:)) - min(m1(:))); %
-% 
+%
 % figure
 % % m1 = mean(m,2); % plotting the result at 400 ms
 % bnd.pnt = individual_grid.pos;

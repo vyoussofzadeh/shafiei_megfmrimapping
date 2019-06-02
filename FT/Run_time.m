@@ -16,5 +16,8 @@ ep_data.app = ft_appenddata(cfg,ep_data.bsl,ep_data.pst);
 
 %% Data-covarinace estimation
 t_data = vy_timelock(ep_data);
-% savepath = fullfile(outputdir,['tl_',subj,'_',run,'.mat']);
-% save(savepath, 't_data', '-v7.3');
+
+%%
+% savepath = fullfile(outd.sub,'Timelock',['t_',subj,'.mat']);
+% tlk = t_data.all;
+% save(savepath, 'tlk', '-v7.3');

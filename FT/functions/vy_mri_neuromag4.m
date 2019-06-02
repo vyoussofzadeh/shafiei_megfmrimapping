@@ -1,4 +1,4 @@
-function [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm] = vy_mri_neuromag2(cfg_main)
+function [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm, individual_seg] = vy_mri_neuromag4(cfg_main)
 
 if exist(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']), 'file') == 2
     load(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']));
@@ -22,7 +22,7 @@ else
         %         cfg.coordsys = 'neuromag';
         %         individual_mri = ft_volumerealign(cfg, individual_mri);
         
-        %% Normalized coordinate system (NCS)
+        %%
         cfg          = [];
         % cfg.method   = 'interactive';
         cfg.method = 'fiducial'; % the following voxel coords were determined interactive
@@ -31,9 +31,9 @@ else
         cfg.fiducial.pc   = fid.NCS.PC;
         cfg.fiducial.xzpoint  = fid.NCS.IH;
         cfg.fiducial.right   = fid.SCS.RPA;
-        mri_realigned     = ft_volumerealign(cfg, individual_mri);
+        mri_spm     = ft_volumerealign(cfg, individual_mri);
         
-        %% Subject Coordinate System (SCS / CTF)
+        %%
         cfg = [];
         cfg.method = 'fiducial';
         cfg.coordsys = 'neuromag';
@@ -41,7 +41,7 @@ else
         cfg.fiducial.lpa   = fid.SCS.LPA;
         cfg.fiducial.rpa   = fid.SCS.RPA;
         cfg.spmversion     = 'spm12';
-        mri_realigned = ft_volumerealign(cfg, mri_realigned);
+        mri_neuromag = ft_volumerealign(cfg, mri_spm);
         %%
         
         %%
@@ -62,20 +62,20 @@ else
         cfg.headshape.headshape = headshape;
         cfg.coordsys = 'neuromag';
         cfg.spmversion     = 'spm12';
-        mri_realigned = ft_volumerealign(cfg, mri_realigned);
+        mri_neuromag = ft_volumerealign(cfg, mri_neuromag);
         
         %%
-        cfg = [];
-        cfg.method = 'headshape';
-        cfg.headshape.interactive = 'no';
-        cfg.headshape.icp = 'yes';
-        cfg.headshape.headshape = headshape;
-        cfg.coordsys = 'neuromag';
-        cfg.spmversion     = 'spm12';
-        mri_realigned = ft_volumerealign(cfg, mri_realigned);
+%         cfg = [];
+%         cfg.method = 'headshape';
+%         cfg.headshape.interactive = 'no';
+%         cfg.headshape.icp = 'yes';
+%         cfg.headshape.headshape = headshape;
+%         cfg.coordsys = 'neuromag';
+%         cfg.spmversion     = 'spm12';
+%         mri_neuromag = ft_volumerealign(cfg, mri_neuromag);
         
         %% == to check everything went right with co-reg!
-        ft_determine_coordsys(mri_realigned, 'interactive', 'no')
+        ft_determine_coordsys(mri_neuromag, 'interactive', 'no')
         ft_plot_headshape(headshape);
         view([-90, 0]),
         
@@ -83,10 +83,11 @@ else
         cfg = [];
         cfg.output = 'brain';
         cfg.spmversion = 'spm12';
-        individual_seg = ft_volumesegment(cfg, mri_realigned);
+        individual_seg = ft_volumesegment(cfg, mri_neuromag);
         
         %%
-        individual_seg.transform = mri_realigned.transform;
+        individual_seg.anatomy = mri_neuromag.anatomy;
+        individual_seg.transform = mri_neuromag.transform;
         cfg = [];
         cfg.method = 'singleshell';
         cfg.spmversion = 'spm12';
@@ -95,11 +96,11 @@ else
         %% Source model, warpping with template
         load temp_grid % low-res
         cfg                 = [];
-        cfg.warpmni    = 'yes';
+        cfg.grid.warpmni    = 'yes';
         cfg.spmversion     = 'SPM12';
         cfg.grid.nonlinear  = 'yes';
         cfg.grid.template   = template_grid;
-        cfg.mri             = mri_realigned;
+        cfg.mri             = mri_neuromag;
         cfg.grid.unit       = 'mm';
         individual_grid_10mm     = ft_prepare_sourcemodel(cfg);
         
@@ -109,7 +110,7 @@ else
         individual_grid_8mm     = ft_prepare_sourcemodel(cfg);
         
         %%
-        save(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']),'mri_realigned','individual_headmodel','headshape');
+        save(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']), 'individual_seg','mri_neuromag','individual_headmodel','headshape');
         save(fullfile(cfg_main.outputmridir,['mesh8mm_',cfg_main.subj,'.mat']), 'individual_grid_8mm');
         save(fullfile(cfg_main.outputmridir,['mesh10mm_',cfg_main.subj,'.mat']), 'individual_grid_10mm');
     end
@@ -124,13 +125,6 @@ if cfg_main.plotflag == 1
     ft_plot_headshape(headshape);
     ft_plot_mesh(individual_grid_10mm.pos(individual_grid_10mm.inside, :));
     view ([0 90])
-    
-    
-%     figure
-%     ft_plot_vol(individual_headmodel, 'unit', 'mm');  %this is the brain shaped head model volume
-% %     ft_plot_sens(t_data.all.grad, 'unit', 'mm', 'coilsize', 10);  %this is the sensor locations
-%     ft_plot_mesh(individual_grid_10mm.pos(individual_grid_10mm.inside, :));
-%     ft_plot_ortho(mri_realigned.anatomy, 'transform', mri_realigned.transform, 'style', 'intersect');
     
     %% plotting
     sens = ft_read_sens(cfg_main.hsfile); sens = ft_convert_units(sens, 'mm');

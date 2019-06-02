@@ -1,4 +1,4 @@
-function vy_source_dics(cfg_main, ep_data)
+function [source_diff_dics] = vy_source_dics_surface(cfg_main, ep_data)
 
 cfg = [];
 cfg.savefile = [];
@@ -29,7 +29,7 @@ outputdir_dics = fullfile(cfg_main.outputdir,'dics');
 if exist(outputdir_dics, 'file') == 0, mkdir(outputdir_dics), end
 
 % savepath = fullfile(outputdir_dics,['psd_',subj,'_',run,'.mat']);
-% save(savepath, 'ff','psd_bsl','psd_pst', '-v7.3');
+% save(savepath, 'ff','psds_bsl','psd_pst', '-v7.3');
 % savepath = fullfile(outputdir_dics,['fftcon_',subj,'_',run]);
 % hcp_write_figure([savepath,'.png'], gcf, 'resolution', 300);
 
@@ -60,30 +60,44 @@ cfg = [];
 cfg.parameter = 'pow';
 cfg.operation = '(x1-x2)/(x1+x2)';
 source_diff_dics = ft_math(cfg,s_data_dics.pst,s_data_dics.bsl);
-source_diff_dics.pos     = cfg_main.template_grid.pos;
-source_diff_dics.dim     = cfg_main.template_grid.dim;
-source_diff_dics.inside  = cfg_main.template_grid.inside;
+% source_diff_dics.pos     = cfg_main.template_grid.pos;
+% source_diff_dics.dim     = cfg_main.template_grid.dim;
+% source_diff_dics.inside  = cfg_main.template_grid.inside;
 source_diff_dics.pow(source_diff_dics.pow>0)=0;
 
 %%
-% outputdir_dics = fullfile(outputdir,'dics');
-% if exist(outputdir_dics, 'file') == 0, mkdir(outputdir_dics), end
-% savedata = fullfile(outputdir_dics,['s_dics_',subj,'_',run,'.mat']);
-% save(outputdir_dics, 'source_diff_dics', '-v7.3');
-
-mtd = 'source_dics';
-param = [];
-param.mask = 'pow';
-param.loc = 'min';
-source_int_dics = vy_source_plot(source_diff_dics,cfg_main.template_mri,param,2);
-% savefig = fullfile(outputdir_dics,[mtd,'_1_',subj,'_',run]);
-% hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
-
-% clear savepath
-% savepath{1} = fullfile(outputdir_dics,[mtd,'_2_',subj,'_',run]);
-% savepath{2} = fullfile(outputdir_dics,[mtd,'_3_',subj,'_',run]);
-% vy_mapvisualisation(source_int_dics,'pow',0.6, savepath);
-vy_mapvisualisation(source_int_dics,'pow',0.6, []);
+% source_diff_dics.tri = sourcemodelT.tri; %ft_sourceplot need the triangulation information, add to source reconstruction.
+% 
+% 
+% cfg = [];
+% cfg.method          = 'surface';
+% cfg.funparameter    = 'pow';
+% cfg.funcolormap     = 'jet';
+% % cfg.latency         = [0.7 1];     % The time-point to plot
+% cfg.colorbar        = 'no';
+% % cfg.avgovertime     = 'yes';
+% ft_sourceplot(cfg, source_diff_dics);
+% view([-100,20]);
+% 
+% %%
+% % outputdir_dics = fullfile(outputdir,'dics');
+% % if exist(outputdir_dics, 'file') == 0, mkdir(outputdir_dics), end
+% % savedata = fullfile(outputdir_dics,['s_dics_',subj,'_',run,'.mat']);
+% % save(outputdir_dics, 'source_diff_dics', '-v7.3');
+% 
+% mtd = 'source_dics';
+% param = [];
+% param.mask = 'pow';
+% param.loc = 'min';
+% source_int_dics = vy_source_plot(source_diff_dics,cfg_main.template_mri,param,2);
+% % savefig = fullfile(outputdir_dics,[mtd,'_1_',subj,'_',run]);
+% % hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
+% 
+% % clear savepath
+% % savepath{1} = fullfile(outputdir_dics,[mtd,'_2_',subj,'_',run]);
+% % savepath{2} = fullfile(outputdir_dics,[mtd,'_3_',subj,'_',run]);
+% % vy_mapvisualisation(source_int_dics,'pow',0.6, savepath);
+% vy_mapvisualisation(source_int_dics,'pow',0.6, []);
 
 % save nii
 % savenii = fullfile(outputdir_dics,['s_dics_',subj,'_',run,'.nii']);
@@ -110,50 +124,7 @@ vy_mapvisualisation(source_int_dics,'pow',0.6, []);
 % savepath = fullfile(outputdir_dics,[mtd,'_par_roi',subj,'_',run]);
 % hcp_write_figure([savepath,'.png'], gcf, 'resolution', 300);
 
-%%
-% load('cortex_inflated_shifted.mat') 
-% % ft_sourceplot configuration
-% cfg               = [];
-% cfg.funparameter  = 'pow';
-% cfg.maskparameter = 'pow';
-% cfg.maskstyle     = 'colormix';
-% cfg.method        = 'surface';
-% cfg.funcolormap   = flipud(brewermap(65, 'RdBu'));
-% cfg.camlight      = 'no';
-% cfg.colorbar      = 'yes';
-% 
-% opacityratio      = 0.5;
-% 
-% % general fig
-% cfg.funcolorlim   = 'maxabs';
-% 
-% sp        = keepfields(source_int_dics, {'pow' 'time' 'dimord'});
-% % sp.stat   = mean(s.stat.*double(s.posclusterslabelmat==1), 3);
-% sp.dimord = 'pos_time';
-% sp.time   = 0;
-% sp.pos    = ctx.pos;
-% sp.tri    = ctx.tri;
-% % Time slices
-% % times           = [1 2 3 4];
-% maxabs          = max(abs(source_int_dics.pow(:)));
-% cfg.funcolorlim = [-maxabs maxabs];
-% 
-% % lateral side
-% cfg.opacitylim = cfg.funcolorlim.*opacityratio;
-% ft_sourceplot(cfg, source_int_dics);
-% 
-% view([90 0]); camlight; material dull; title('test');
 
-%%
-% m.tri = ctx.tri;
-% m.pos = ctx.pos;
-% 
-% 
-% figure;
-% set(gcf,'color','w');
-% ft_plot_mesh(m, 'vertexcolor', double(ba42)); colormap parula
-% view([110 10]);
-% l = camlight;
-% material dull;
+
 
 

@@ -1,4 +1,4 @@
-function allpath = vy_init(cfg)
+function [allpath, atlas] = vy_init(cfg)
 
 cd_org = cd;
 addpath(genpath(cd_org));
@@ -42,6 +42,9 @@ spm_path = fullfile(cfg.path_tools,'SPM/spm12');
 %-SPM-beamformer
 spmbf_path = fullfile(cfg.path_tools,'Beamforming');
 
+%export_fig
+exportfig_path = fullfile(cfg.path_tools,'export_fig');
+
 %%
 allpath.path_tools = cfg.path_tools;
 allpath.cd_org = cd_org;
@@ -53,6 +56,7 @@ allpath.atlas_path = atlas_path;
 allpath.connpath = connpath;
 allpath.spm_path = spm_path;
 allpath.spmbf_path = spmbf_path;
+allpath.exfig_path = exportfig_path;
 
 
 

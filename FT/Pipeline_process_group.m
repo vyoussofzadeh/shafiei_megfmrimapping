@@ -6,10 +6,10 @@ restoredefaultpath
 cd_org = cd;
 addpath(genpath(cd_org));
 
-%-- Input dir
-indir = '/data/MEG/Vahab/test_data';
-%-- Output dir
-outdir = '/data/MEG/Vahab/test_data/processed';
+%- Input dir
+indir = '/data/MEG/Clinical/MEG';
+%- Output dir
+outdir = '/data/MEG/Clinical';
 
 %- Adding path
 cfg_init = [];
@@ -24,7 +24,7 @@ task = input('Eneter the task: ');
 switch task
     case 1
         % - Auditory definition naming
-        tag = 'dfn';
+        tag = 'DFN';
         Evnt_IDs = 1; % questions
     case 2
         % - Visual picture naming
@@ -46,6 +46,7 @@ switch analysis
         disp('2: Network/Connectvity - Broadband');
         disp('3: DICS Source, Beta');
         disp('4: SPM source analysis (surface + BF)');
+        disp('5: Brainstorm source analysis using ft preprocessed');
         method = input('Eneter the method: ');
         switch method
             case 1
@@ -85,36 +86,25 @@ switch year
         ytag = {'up','11','12','13','14','15','16'};
 end
 
-%% All data
-clear datafolder datafile
-datafile1 = [];
-d = rdir([indir,['/**/','sss','/*',tag,'*/*raw_tsss.fif']]);
-d = rdir([indir,['/**/','/*',tag,'*/*raw_tsss.fif']]);
-
-for i=1:length(d)
-    [pathstr, name] = fileparts(d(i).name);
-    datafolder{i} = pathstr;
-    datafile{i} = d(i).name;
-end
-datafile1 = vertcat(datafile1,datafile);
-datafile1 = datafile1';
-disp(datafile1)
+%% all data
+% d = rdir([datadir,['/**/',ytag,'*/','sss','/*',tag,'*/*raw_tsss.fif']]);
 
 %% Per year
-% clear datafolder datafile
-% datafile1 = [];
-% for j=1:numel(ytag)
-%     ytag1 = ytag{1,j};
-%     d = rdir([indir,['/**/',ytag1,'*/','sss','/*',tag,'*/*raw_tsss.fif']]);
-%     for i=1:length(d)
-%         [pathstr, name] = fileparts(d(i).name);
-%         datafolder{i} = pathstr;
-%         datafile{i} = d(i).name;
-%     end
-%     datafile1 = vertcat(datafile1,datafile);
-% end
-% datafile1 = datafile1';
-% disp(datafile1)
+clear datafolder datafile
+datafile1 = [];
+for j=1:numel(ytag)
+    ytag1 = ytag{1,j};
+    d = rdir([indir,['/**/',ytag1,'*/','sss','/*',tag,'*/*raw_tsss.fif']]);
+    %     d = rdir([indir,['/**/',ytag1,'*/','sss','/*',tag,'*/*raw_sss.fif']]);
+    for i=1:length(d)
+        [pathstr, name] = fileparts(d(i).name);
+        datafolder{i} = pathstr;
+        datafile{i} = d(i).name;
+    end
+    datafile1 = vertcat(datafile1,datafile);
+end
+datafile1 = datafile1';
+disp(datafile1)
 
 %%
 epoch_type = 'STI101';
@@ -132,6 +122,7 @@ for i = 1:size(datafile1,1)
     Index = strfind(datafile, '/');
     subj = datafile(Index(5)+1:Index(6)-1);
     Date  = datafile(Index(6)+1:Index(7)-1);
+    disp(datafile)
     disp(['subj:',subj])
     disp(['Date:',Date])
     
@@ -160,12 +151,17 @@ for i = 1:size(datafile1,1)
         Run_freq
     end
     
-    %% Timelock
-    %     if flag.time == 1
-    %         toi = [-0.4,0;0.3,0.7];
-    %         %         toi = [-0.3,0;1.0,1.5];
-    %         Run_time
-    %     end
+    %%
+    cln_data_BAK = cln_data;
+    
+    %%
+    cln_data = cln_data_BAK;
+    cfg                = [];
+    %     cfg.hpfilter       = 'yes';        % enable high-pass filtering
+    cfg.lpfilter       = 'yes';        % enable low-pass filtering
+    %     cfg.hpfreq       = 1;           % set up the frequency for high-pass filter
+    cfg.lpfreq         = 20;          % set up the frequency for low-pass filter
+    cln_data          = ft_preprocessing(cfg,cln_data);
     
     %% Timelock
     if flag.time == 1
@@ -183,34 +179,28 @@ for i = 1:size(datafile1,1)
     if flag.gave == 1
         Run_grandmean
     end
-    
-    %% Output MRI dir
+    %% Source analysis
     outputmridir = fullfile(outdir,'ft_process',yttag, subj,'anat'); % output dir
     if exist(outputmridir, 'file') == 0, mkdir(outputmridir); end
+    
     %%
     switch analysis
         case 1
             %% Surface-based analysis
-            %             mtag = 'source_surf';
-            %             outd.sourcesuf = fullfile(outd.sub,mtag);
-            %             cfg = [];
-            %             cfg.task = tag;
-            %             cfg.outputdir = outd.sourcesuf;
-            %             cfg.subj = subj;
-            %             cfg.data = t_data.pst;
-            %             cfg.datadir = indir;
-            %             cfg.outputmridir = outputmridir;
-            %             cfg.peaksel = 4;
-            %             vy_surfacebasedsource(cfg)
             vy_surfacebasedsource2
             vy_surfacebasedsource_dics
             
         case 2
-            %%
-            anatomy_check_flag = 1;
+            %% Volumetric-based analysis
+            anatomy_check_flag = 2;
             Run_volumetric
+            
         case 3
+            %% SPM surface-based
             Run_spm
+        case 4
+            %% BrainStorm export preprocessed ft-IC
+            Run_bs
     end
     
     %%

@@ -18,6 +18,46 @@ switch mtd
         s_data.bsl = ft_sourceanalysis(cfg, data.bsl);
         s_data.pst = ft_sourceanalysis(cfg, data.pst);
         
+    case 'dics_stat'
+        cfg              = [];
+        cfg.method       = 'dics';
+        cfg.frequency    = data.app.freq;
+        %         cfg.grid         = grid;
+        cfg.grid.pos = grid.pos(grid.inside,:);
+        cfg.headmodel    = vol;
+        cfg.dics.lambda       = '5%';
+        cfg.dics.keepfilter   = 'yes';
+        cfg.dics.fixedori     = 'yes';
+        sourceAll = ft_sourceanalysis(cfg, data.app);
+%         cfg.grid.filter = sourceAll.avg.filter;
+%         cfg.rawtrial = 'yes';
+%         cfg.vol = vol;
+%         s_data.bsl = ft_sourceanalysis(cfg, data.bsl);
+%         s_data.pst = ft_sourceanalysis(cfg, data.pst);
+                
+        cfg = [];
+        cfg.method = 'dics';
+        cfg.dics.lambda = '5%';
+        cfg.frequency    = data.app.freq;
+        % cfg.grid = grid;
+        cfg.grid.pos = grid.pos(grid.inside,:);
+        cfg.headmodel = vol;
+        cfg.dics.keepfilter = 'yes';
+        cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
+        cfg.channel = data.bsl.label;
+        sourceavg = ft_sourceanalysis(cfg, data.app);
+        
+        cfg = [];
+        cfg.method = 'dics';
+        cfg.dics.lambda = '5%';
+        cfg.grid.pos = grid.pos(grid.inside,:);
+        cfg.grid.filter = sourceavg.avg.filter;
+        cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
+        cfg.rawtrial = 'yes';
+        cfg.headmodel = vol;
+        s_data.bsl      = ft_sourceanalysis(cfg, data.bsl);
+        s_data.pst      = ft_sourceanalysis(cfg, data.pst);
+        
     case 'pcc'
         
         cfg              = [];

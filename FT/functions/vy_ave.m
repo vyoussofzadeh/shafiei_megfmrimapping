@@ -1,9 +1,12 @@
 function a_data = vy_ave(data)
 
+tt = data.time{1};
+idx = find(tt==0);
+
 cfg                   = [];
 cfg.covariance        = 'yes';
 cfg.covariancewindow  = 'all';
-cfg.preproc.baselinewindow = [-0.2,0];
+cfg.preproc.baselinewindow = [tt(1),tt(idx)];
 cfg.preproc.demean    = 'yes';    % enable demean to remove mean value from each single trial
 
 % a_data.pst         = ft_timelockanalysis(cfg, data.pst);

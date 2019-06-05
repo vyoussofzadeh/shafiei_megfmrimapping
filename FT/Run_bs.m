@@ -1,6 +1,9 @@
 
 bsdatadir = fullfile(indir,subj,'brainstorm_db/data');
 d = rdir(fullfile(bsdatadir,subj,['/@*',tag,'*'],'/channel_vectorview306*.mat'));
+if isempty(d)
+        d = rdir(fullfile(bsdatadir,subj,['/*',tag,'*'],'/channel_vectorview306*.mat'));
+end
 
 %%
 for i=1:length(d)
@@ -31,7 +34,13 @@ disp('=============')
 disp('channel modification was completed');
 
 %%
-save(fullfile(bsdatadir,'BS_channels'),'chan_updated');
-save(fullfile(bsdatadir,'IC_data'),'cln_data');
+bssavedir = fullfile(indir,subj,'brainstorm_db/');
+save(fullfile(bssavedir,[tag,'_BS_channels']),'chan_updated');
+save(fullfile(bssavedir,[tag,'_IC_data']),'cln_data');
 
-
+%%
+restoredefaultpath
+addpath((allpath.ft_path));
+ft_defaults
+addpath(genpath(allpath.hcp_path));
+addpath(genpath(allpath.cd_org));

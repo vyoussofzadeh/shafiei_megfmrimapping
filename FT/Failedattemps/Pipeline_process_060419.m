@@ -1,6 +1,5 @@
 clear; clc, close('all'); warning off
 
-
 %% Initial settings
 cd '/data/MEG/Vahab/Github/MCW-MEGlab/FT';
 restoredefaultpath
@@ -9,13 +8,13 @@ addpath(genpath(cd_org));
 
 %- Input dir
 indir = '/data/MEG/Clinical/MEG';
-%- Output dir
+%- Output dir 
 outdir = '/data/MEG/Clinical';
 
 %- Adding path
 cfg_init = [];
 cfg_init.path_tools = '/data/MEG/Vahab/Github/MCW-MEGlab/tools';
-allpath = vy_init(cfg_init);
+[allpath, atlas] = vy_init(cfg_init);
 
 %%
 disp('1: Definition naming')
@@ -117,7 +116,7 @@ lay = ft_prepare_layout(cfg);
 % ft_layoutplot(cfg);
 
 %%
-for i = 3:size(datafile1,1)
+for i = 4:size(datafile1,1)
     
     datafile = datafile1{i}; % spm_select(inf,'dir','Select MEG folder'); % e.g. H:\VNS\MEG\C-105\CRM\1
     Index = strfind(datafile, '/');
@@ -152,44 +151,74 @@ for i = 3:size(datafile1,1)
         Run_freq
     end
     
+    %%
+    cln_data_BAK = cln_data;
+    
+    %%
+    cln_data = cln_data_BAK;
+%     cfg                = [];
+%     %     cfg.hpfilter       = 'yes';        % enable high-pass filtering
+%     cfg.lpfilter       = 'yes';        % enable low-pass filtering
+%     %     cfg.hpfreq       = 1;           % set up the frequency for high-pass filter
+%     cfg.lpfreq         = 8;          % set up the frequency for low-pass filter
+%     cln_data          = ft_preprocessing(cfg,cln_data);
+    
+    %     cfg             = [];
+    % %     cfg.hpfilter    = 'yes';        % enable high-pass filtering
+    %     cfg.lpfilter    = 'yes';        % enable low-pass filtering
+    % %     cfg.hpfreq      = 12;           % set up the frequency for high-pass filter
+    %     cfg.lpfreq      = 23;          % set up the frequency for low-pass filter
+    %     cln_data        = ft_preprocessing(cfg,cln_data);
+    
+    %     cfg         = [];
+    %     cfg.bsfilter = 'yes';
+    %     cfg.bsfreq = [9 11]; % or whatever you deem appropriate
+    %     cln_data   = ft_preprocessing(cfg,cln_data);
+    
     %% Timelock
     if flag.time == 1
-        toi = [-0.2,0;0.6,0.8];
+        switch task
+            case 1
+                %                 toi = [-0.5,0;0.3,0.8]; % Best of DN
+                toi = [-0.3,0;1.1,1.8]; % Best of DN
+            case 2
+                toi = [0,0.3;0.6,1.2]; % Best for PN, left IFG
+        end
         Run_time
     end
+    
+    %%
+    %     cfg = [];
+    %     cfg.savefile = [];
+    %     cfg.saveflag = 2;
+    %     cfg.lay  = lay;
+    %     tfr = vy_tfr2(cfg, t_data);
+    
     %% Grand Mean
     if flag.gave == 1
         Run_grandmean
     end
-    %% Output MRI dir
+    %% Source analysis
     outputmridir = fullfile(outdir,'ft_process',yttag, subj,'anat'); % output dir
     if exist(outputmridir, 'file') == 0, mkdir(outputmridir); end
+    
     %%
     switch analysis
         case 1
             %% Surface-based analysis
-%             outd.sourcesuf = fullfile(outd.sub,mtag);
-%             cfg = [];
-%             cfg.task = tag;
-%             cfg.outputdir = outd.sourcesuf;
-%             cfg.subj = subj;
-%             cfg.data = t_data.pst;
-%             cfg.datadir = indir;
-%             cfg.outputmridir = outputmridir;
-%             cfg.peaksel = 4;
-%             [source, surface_headmodel, surface_grid, surface_sourcemodel] = vy_surfacebasedsource(cfg);
             vy_surfacebasedsource2
             vy_surfacebasedsource_dics
             
         case 2
-            %%
+            %% Volumetric-based analysis
             anatomy_check_flag = 2;
             Run_volumetric
+            
         case 3
-            %%
+            %% SPM surface-based
             Run_spm   
         case 4
-            %%
+            %% BrainStorm export preprocessed ft-IC
             Run_bs
     end
     

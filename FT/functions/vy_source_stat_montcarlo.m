@@ -4,7 +4,7 @@ function stat = vy_source_stat_montcarlo(s_data)
 %%
 cfg = [];
 cfg.parameter        = 'pow';
-cfg.dim              = s_data.pst.dim;
+% cfg.dim              = s_data.pst.dim;
 cfg.method           = 'montecarlo';
 % cfg.statistic        = 'ft_statfun_depsamplesT';
 cfg.statistic        = 'depsamplesT';

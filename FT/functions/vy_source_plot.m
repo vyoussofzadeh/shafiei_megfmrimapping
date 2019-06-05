@@ -2,8 +2,8 @@ function source_int = vy_source_plot(data,template_mri,param,n)
 
 cfg = [];
 cfg.parameter = param.mask;
-cfg.interpmethod = 'sphere_avg';
-% cfg.interpmethod = 'smudge';
+% cfg.interpmethod = 'sphere_avg';
+cfg.interpmethod = 'smudge';
 cfg.coordsys     = 'mni';
 source_int = ft_sourceinterpolate(cfg, data, template_mri);
 

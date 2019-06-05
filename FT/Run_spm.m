@@ -5,7 +5,7 @@ if exist(outputdir1, 'file') == 0
 end
 addpath(genpath(allpath.spm_path))
 cfg = [];
-cfg.toilim = [-0.4 1];
+cfg.toilim = [-0.4 1.2];
 eint_data = ft_redefinetrial(cfg, cln_data);
 
 %%
@@ -22,8 +22,7 @@ if exist(mripfile, 'file') == 2
 end
 cd ..
 
-
-   % revert to the newer ft!
+% revert to the newer ft!
 restoredefaultpath
 addpath((allpath.ft_path));
 ft_defaults

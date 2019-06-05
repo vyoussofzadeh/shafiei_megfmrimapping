@@ -1,15 +1,18 @@
 function vy_network_light1(cfg_main, t_data)
 
-% check if lcmv exists!
-% if ~exist('s_data2','var')
 [s_data, s_data2] = vy_source(t_data, cfg_main.grid, cfg_main.headmodel);
-% end
+
 %%
 % using older ver of ft for network analysis
+% restoredefaultpath
+% addpath(genpath(cfg_main.allpath.ft_oldp.ft_old));
+% addpath(genpath(cfg_main.p.hcp_path));
+% addpath(genpath(cfg_main.p.cd_org));
+%
 restoredefaultpath
-addpath(genpath(cfg_main.p.ft_old));
-addpath(genpath(cfg_main.p.hcp_path));
-addpath(genpath(cfg_main.p.cd_org));
+addpath(genpath(cfg_main.allpath.ft_old));
+addpath(genpath(cfg_main.allpath.hcp_path));
+addpath(genpath(cfg_main.allpath.cd_org));
 
 %%
 mtd = 'plv';
@@ -39,10 +42,11 @@ network_diff_lcmv.eigenvector_cent(network_diff_lcmv.eigenvector_cent<0)=0;
 
 %% revert to the newer ft!
 restoredefaultpath
-addpath((cfg_main.p.ft_path));
+addpath((cfg_main.allpath.ft_path));
 ft_defaults
-addpath(genpath(cfg_main.p.hcp_path));
-addpath(genpath(cfg_main.p.cd_org));
+addpath(genpath(cfg_main.allpath.hcp_path));
+addpath(genpath(cfg_main.allpath.cd_org));
+addpath(genpath(cfg_main.allpath.exfig_path));
 
 %%
 savepath = fullfile(cfg_main.outputdir);
@@ -50,7 +54,6 @@ if exist(savepath, 'file') == 0, mkdir(savepath), end
 savedata = fullfile(savepath,['n_',cfg_main.subj,'.mat']);
 save(savedata, 'network_diff_lcmv', '-v7.3');
 mtd = 'network_evc';
-
 
 % oldmask = network_diff_lcmv.(gtm);
 % network_diff_lcmv.mask = (oldmask - min(oldmask(:))) ./ (max(oldmask(:)) - min(oldmask(:))); %
@@ -63,12 +66,26 @@ param.loc = 'max';
 network_int_lcmv = vy_source_plot(network_diff_lcmv,cfg_main.template_mri,param,2);
 savefig = fullfile(savepath,[mtd,'_1_',cfg_main.subj]);
 hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
+% saveformat = '-png';
+% pixdim     = '-m8';
+% export_fig(savefig, saveformat, pixdim)
+% print(gcf, '-dpdf',[savefig,'.pdf']);
 
 % clear savep
-% savep{1} = fullfile(savepath,[mtd,'_2_',cfg_main.subj]);
-% savep{2} = fullfile(savepath,[mtd,'_3_',cfg_main.subj]);
-% vy_mapvisualisation(network_int_lcmv,gtm,0.6, savep);
-vy_mapvisualisation(network_int_lcmv,gtm,0.6, []);
+savep{1} = fullfile(savepath,[mtd,'_2_',cfg_main.subj]);
+savep{2} = fullfile(savepath,[mtd,'_3_',cfg_main.subj]);
+
+% cfg = [];
+% cfg.maskparam = gtm;
+% cfg.save.savepath =  savep;
+% % cfg.saveformat = '-eps';
+% cfg.save.saveformat = '-png';
+% cfg.save.pixdim     = 12;
+% cfg.projthresh      = 0.6;
+% vy_surfmap(cfg, network_int_lcmv);
+
+vy_mapvisualisation(network_int_lcmv,gtm,0.6,savep)
+% vy_mapvisualisation(network_int_lcmv,gtm,0.6, []);
 
 
 % savenii = fullfile(savepath,['n_',subj,'.nii']);

@@ -20,6 +20,9 @@ if ~isempty(d)
     cfg.plotflag = 2;
     cfg.atlas = atlas;
     [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm, mri_realigned_ctf] = vy_mri_neuromag2(cfg);
+    %     [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm, individual_seg] = vy_mri_neuromag4(cfg);
+    %         [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm] = vy_mri_neuromag3(cfg);
+    
 end
 
 %% Choosing mesh
@@ -57,14 +60,17 @@ switch method
         %%
         mtag = 'conn'; outd.vol = fullfile(outd.sub,mtag);
         cfg = [];
-        cfg.allpath = allpath;
+        cfg.p.ft_old = allpath.ft_old;
+        cfg.p.ft_path = allpath.ft_path;
+        cfg.p.cd_org = cd_org;
+        cfg.p.hcp_path = allpath.hcp_path;
         cfg.grid = individual_grid;
         cfg.headmodel = individual_headmodel;
         cfg.subj = subj;
         cfg.sens = sens;
         cfg.atlas = allpath.atlas_path;
         cfg.outputdir = outd.vol;
-        %         cfg.template_grid = sourcemodel;
+%         cfg.template_grid = sourcemodel;
         cfg.template_grid = template_grid;
         cfg.template_mri = template_mri;
         vy_network_light1(cfg,t_data) % conn-network analysis
@@ -74,29 +80,44 @@ switch method
         mtag = 'dics'; outd.vol = fullfile(outd.sub,mtag);
         cfg = [];
         cfg.grid = individual_grid;
-        cfg.allpath = allpath;
         cfg.headmodel = individual_headmodel;
         cfg.sens = sens;
-        cfg.subj = subj;
         cfg.outputdir = outd.vol;
 %         cfg.template_grid = sourcemodel;
         cfg.template_grid = template_grid;
         cfg.template_mri = template_mri;
         vy_source_dics(cfg,ep_data);
         
-    case 4
-        %% DICS stats
-        mtag = 'dics_stat'; outd.vol = fullfile(outd.sub,mtag);
-        cfg = [];
-        cfg.grid = individual_grid;
-        cfg.allpath = allpath;
-        cfg.headmodel = individual_headmodel;
-        cfg.sens = sens;
-        cfg.subj = subj;
-        cfg.outputdir = outd.vol;
-        %         cfg.template_grid = sourcemodel;
-        cfg.template_grid = template_grid;
-        cfg.template_mri = template_mri;
-        vy_source_dics_stats(cfg,ep_data);
-        
+        %     case 4
+        %         %%
+        %         outputdir = fullfile(outdir,'ft_process',yttag, subj, tag);
+        %         outputdir1 = fullfile(outputdir, 'spm_source');
+        %         if exist(outputdir1, 'file') == 0
+        %             mkdir(outputdir1);   % create a directory
+        %         end
+        %         cfg = [];
+        %         cfg.toilim = [-0.4 2];
+        %         eint_data = ft_redefinetrial(cfg, cln_data);
+        %
+        %         if exist(mripfile, 'file') == 2
+        %             cd(outputdir1);
+        %
+        %             cfg = [];
+        %             cfg.p.spm = spm_path;
+        %             cfg.p.hcp_path = hcp_path;
+        %             cfg.p.ft_path = ft_path;
+        %             cfg.p.spmbf = spmbf_path;
+        %             cfg.p.cd_org = cd_org;
+        %             cfg.datafile = datafile;
+        %             cfg.eint_data = eint_data;
+        %             cfg.mripfile = mripfile;
+        %             cfg.subj = subj;
+        %             vy_forward_spm_meg(cfg);
+        %
+        %             restoredefaultpath
+        %             addpath(genpath(ft_path));
+        %             addpath(genpath(hcp_path));
+        %             addpath(genpath([cd_org,'/functions']));
+        %             addpath(genpath([cd_org,'/Data_file']));
+        %             cd(outputdir)
 end

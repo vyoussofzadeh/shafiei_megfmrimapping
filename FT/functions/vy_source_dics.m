@@ -25,7 +25,8 @@ hold on
 plot(ff,psd_pst - psd_bsl,'k')
 xlabel('Hz'); ylabel('psd'),legend({'bsl','pst','diff'})
 
-outputdir_dics = fullfile(cfg_main.outputdir,'dics');
+% outputdir_dics = fullfile(cfg_main.outputdir,'dics');
+outputdir_dics = cfg_main.outputdir;
 if exist(outputdir_dics, 'file') == 0, mkdir(outputdir_dics), end
 
 % savepath = fullfile(outputdir_dics,['psd_',subj,'_',run,'.mat']);
@@ -76,14 +77,30 @@ param = [];
 param.mask = 'pow';
 param.loc = 'min';
 source_int_dics = vy_source_plot(source_diff_dics,cfg_main.template_mri,param,2);
-% savefig = fullfile(outputdir_dics,[mtd,'_1_',subj,'_',run]);
+% savefig = fullfile(outputdir_dics,[num2str(f),'Hz','_1_',cfg_main.subj]);
 % hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
 
-% clear savepath
-% savepath{1} = fullfile(outputdir_dics,[mtd,'_2_',subj,'_',run]);
-% savepath{2} = fullfile(outputdir_dics,[mtd,'_3_',subj,'_',run]);
-% vy_mapvisualisation(source_int_dics,'pow',0.6, savepath);
-vy_mapvisualisation(source_int_dics,'pow',0.6, []);
+clear savepath
+savepath{1} = fullfile(outputdir_dics,[num2str(f),'Hz','_2_',cfg_main.subj]);
+savepath{2} = fullfile(outputdir_dics,[num2str(f),'Hz','_3_',cfg_main.subj]);
+vy_mapvisualisation(source_int_dics,'pow',0.6, savepath);
+% vy_mapvisualisation(source_int_dics,'pow',0.6, []);
+
+% restoredefaultpath
+% addpath((cfg_main.allpath.ft_path));
+% ft_defaults
+% addpath(genpath(cfg_main.allpath.hcp_path));
+% addpath(genpath(cfg_main.allpath.cd_org));
+% addpath(genpath(cfg_main.allpath.exfig_path));
+% 
+% cfg = [];
+% cfg.maskparam = 'pow';
+% cfg.save.savepath =  savepath;
+% % cfg.saveformat = '-eps';
+% cfg.save.saveformat = '-png';
+% cfg.save.pixdim     = 12;
+% cfg.projthresh      = 0.6;
+% vy_surfmap(cfg, source_int_dics);
 
 % save nii
 % savenii = fullfile(outputdir_dics,['s_dics_',subj,'_',run,'.nii']);

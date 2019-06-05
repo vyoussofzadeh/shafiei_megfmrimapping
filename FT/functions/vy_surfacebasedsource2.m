@@ -18,7 +18,7 @@ if ~isempty(d)
     cfg.outputmridir = outputmridir;
     cfg.subj = subj;
     cfg.plotflag = 2;
-    [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm] = vy_mri_neuromag2(cfg);
+    [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm, mri_realigned_ctf] = vy_mri_neuromag2(cfg);
     
 end
 
@@ -33,7 +33,8 @@ surface_sourcemodel = ft_convert_units(sourcemodel, 'mm');
 % sourcemodelT = ft_transform_geometry(T, surface_sourcemodel);
 % InitTransf
 
-tr_neuromag = mri_realigned.transform;
+% tr_neuromag = mri_realigned.transform;
+tr_ctf = mri_realigned_ctf.transform;
 tr_neuromagorg = mri_realigned.transformorig;
 
 % 
@@ -50,7 +51,10 @@ tr_neuromagorg = mri_realigned.transformorig;
 % ft_plot_vol(individual_headmodel, 'facealpha', 0.5, 'edgecolor', 'none');
 
 %%
-sourcemodelT = ft_transform_geometry(tr_neuromagorg/tr_neuromag, surface_sourcemodel);
+% sourcemodelT = ft_transform_geometry(tr_neuromagorg/tr_neuromag, surface_sourcemodel);
+sourcemodelT = ft_transform_geometry(tr_neuromagorg/tr_ctf, surface_sourcemodel);
+% sourcemodelT = ft_transform_geometry(tr_ctf, surface_sourcemodel);
+
 
 %%
 % transform = inv(ChannelMat.TransfMeg{strcmp('neuromag_head=>scs',ChannelMat.TransfMegLabels)});
@@ -74,7 +78,9 @@ view([90,0])
 % view([0,0])
 
 %%
-datain = t_data.all;
+% datain = t_data.all;
+datain = t_data.pst;
+
 
 %%
 cfg = [];

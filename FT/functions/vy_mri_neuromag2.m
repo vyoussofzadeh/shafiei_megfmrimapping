@@ -1,4 +1,4 @@
-function [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm] = vy_mri_neuromag2(cfg_main)
+function [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm, mri_realigned_ctf] = vy_mri_neuromag2(cfg_main)
 
 if exist(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']), 'file') == 2
     load(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']));
@@ -54,6 +54,7 @@ else
         headshape = ft_read_headshape(cfg_main.hsfile);
         headshape = ft_convert_units(headshape, 'mm');
         
+        
         %%
         cfg = [];
         cfg.method = 'headshape';
@@ -86,37 +87,64 @@ else
         individual_seg = ft_volumesegment(cfg, mri_realigned);
         
         %%
+%         cfg = [];
+%         cfg.method = 'projectmesh';
+%         cfg.numvertices = 10000;
+%         bnd = ft_prepare_mesh(cfg, individual_seg);
+        
+        %%
         individual_seg.transform = mri_realigned.transform;
         cfg = [];
         cfg.method = 'singleshell';
         cfg.spmversion = 'spm12';
         individual_headmodel = ft_prepare_headmodel(cfg, individual_seg);
-        
-        %% Source model, warpping with template
-        load temp_grid % low-res
-        cfg                 = [];
-        cfg.warpmni    = 'yes';
-        cfg.spmversion     = 'SPM12';
-        cfg.grid.nonlinear  = 'yes';
-        cfg.grid.template   = template_grid;
-        cfg.mri             = mri_realigned;
-        cfg.grid.unit       = 'mm';
-        individual_grid_10mm     = ft_prepare_sourcemodel(cfg);
-        
-        %%
-        load temp_grid_8mm % high-res
-        cfg.grid.template   = template_grid;
-        individual_grid_8mm     = ft_prepare_sourcemodel(cfg);
-        
-        %%
-        save(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']),'mri_realigned','individual_headmodel','headshape');
-        save(fullfile(cfg_main.outputmridir,['mesh8mm_',cfg_main.subj,'.mat']), 'individual_grid_8mm');
-        save(fullfile(cfg_main.outputmridir,['mesh10mm_',cfg_main.subj,'.mat']), 'individual_grid_10mm');
     end
+    
+    
+    %% Source model, warpping with template
+    load temp_grid % low-res
+    % load('standard_sourcemodel3d10mm');sourcemodel = ft_convert_units(sourcemodel, 'mm');
+    cfg                 = [];
+    cfg.warpmni    = 'yes';
+    cfg.spmversion     = 'SPM12';
+    cfg.grid.nonlinear  = 'yes';
+    cfg.grid.template   = template_grid;
+    % cfg.grid.template   = sourcemodel;
+    cfg.mri             = mri_realigned;
+    cfg.grid.unit       = 'mm';
+    individual_grid_10mm     = ft_prepare_sourcemodel(cfg);
+    
+    %%
+    % load('standard_sourcemodel3d8mm');sourcemodel = ft_convert_units(sourcemodel, 'mm');
+    clear template_grid
+    load temp_grid_8mm % high-res
+    cfg.grid.template   = template_grid;
+    % cfg.grid.template   = sourcemodel;
+    cfg.grid.template   = template_grid;
+    individual_grid_8mm     = ft_prepare_sourcemodel(cfg);
+    
+    %%
+    save(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']),'individual_seg','mri_realigned','individual_headmodel','headshape');
+    save(fullfile(cfg_main.outputmridir,['mesh8mm_',cfg_main.subj,'.mat']), 'individual_grid_8mm');
+    save(fullfile(cfg_main.outputmridir,['mesh10mm_',cfg_main.subj,'.mat']), 'individual_grid_10mm');
+    
+    
 end
+%%
+cfg = [];
+cfg.method = 'headshape';
+cfg.headshape.interactive = 'no';
+cfg.headshape.icp = 'yes';
+cfg.headshape.headshape = headshape;
+cfg.coordsys = 'ctf';
+cfg.spmversion     = 'spm12';
+mri_realigned_ctf = ft_volumerealign(cfg, mri_realigned);
+
+%     end
 
 %% Quick inspection
 if cfg_main.plotflag == 1
+    
     %%
     figure;
     ft_plot_vol(individual_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
@@ -125,18 +153,26 @@ if cfg_main.plotflag == 1
     ft_plot_mesh(individual_grid_10mm.pos(individual_grid_10mm.inside, :));
     view ([0 90])
     
+    figure;
+    ft_plot_vol(individual_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
+    hold on;
+    ft_plot_headshape(headshape);
+    ft_plot_mesh(individual_grid_8mm.pos(individual_grid_8mm.inside, :));
+    view ([0 90])
     
-%     figure
-%     ft_plot_vol(individual_headmodel, 'unit', 'mm');  %this is the brain shaped head model volume
-% %     ft_plot_sens(t_data.all.grad, 'unit', 'mm', 'coilsize', 10);  %this is the sensor locations
-%     ft_plot_mesh(individual_grid_10mm.pos(individual_grid_10mm.inside, :));
-%     ft_plot_ortho(mri_realigned.anatomy, 'transform', mri_realigned.transform, 'style', 'intersect');
+    %     figure
+    %     ft_plot_vol(individual_headmodel, 'unit', 'mm');  %this is the brain shaped head model volume
+    % %     ft_plot_sens(t_data.all.grad, 'unit', 'mm', 'coilsize', 10);  %this is the sensor locations
+    %     ft_plot_mesh(individual_grid_10mm.pos(individual_grid_10mm.inside, :));
+    %     ft_plot_ortho(mri_realigned.anatomy, 'transform', mri_realigned.transform, 'style', 'intersect');
     
-    %% plotting
+    %%
     sens = ft_read_sens(cfg_main.hsfile); sens = ft_convert_units(sens, 'mm');
     figure; ft_plot_vol(individual_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none'); camlight;
     hold on; ft_plot_sens(sens)
+    ft_plot_mesh(individual_grid_8mm.pos(individual_grid_8mm.inside, :));
     ft_plot_headshape(headshape);
+    
     %%
 end
 
@@ -153,6 +189,32 @@ end
 %         cfg.mri = mri_realigned;
 %         cfg.grid.unit     = 'mm';
 %         individual_grid = ft_prepare_sourcemodel(cfg);
+
+%% GM masking
+%
+% atlas = cfg_main.atlas;
+% cfg = [];
+% cfg.atlas      = atlas;
+% cfg.roi        = atlas.tissuelabel;  % here you can also specify a single label, i.e. single ROI
+% cfg.inputcoord = 'mni';
+% mask           = ft_volumelookup(cfg, individual_grid_8mm);
+%
+% %% After
+% individual_grid2                 = individual_grid_8mm;
+% individual_grid2.inside          = false(individual_grid2.dim);
+% individual_grid2.inside(mask==1) = true;
+%
+% % figure; hold on;
+% % ft_plot_vol(individual_headmodel, 'edgecolor', 'none', 'facealpha', 0.4);
+% % ft_plot_mesh(individual_grid_10mm.pos(individual_grid_10mm.inside,:));
+%
+%
+% figure;
+% ft_plot_vol(individual_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
+% hold on;
+% % ft_plot_headshape(headshape);
+% ft_plot_mesh(individual_grid2.pos(individual_grid2.inside, :));
+% view ([0 90])
 
 
 %%

@@ -1,15 +1,32 @@
-function vy_mri_inspection(t_data, individual_headmodel,individual_grid,headshape, mri_realigned,outputmridir, saveflag)
+% function vy_mri_inspection(t_data, individual_headmodel,individual_grid,headshape, mri_realigned,outputmridir, saveflag)
+function vy_mri_inspection(cfg, t_data)
 
-%%
-figure;
-ft_plot_vol(individual_headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
-hold on;
-ft_plot_headshape(headshape);
-ft_plot_mesh(individual_grid.pos(individual_grid.inside, :));
-view ([0 90])
-if isempty(saveflag)~=2
-    savepath = fullfile(outputmridir,'headshape');
-    hcp_write_figure([savepath,'.png'], gcf, 'resolution', 300);
+
+switch cfg.mtd
+    case 'vol'
+        %%
+        figure;
+        ft_plot_vol(cfg.headmodel, 'facecolor', 'cortex', 'edgecolor', 'none');alpha 0.5; camlight;
+        hold on;
+        ft_plot_headshape(cfg.headshape);
+        ft_plot_mesh(cfg.leadfield.pos(cfg.leadfield.inside, :));
+        view ([0 90])
+        if isempty(cfg.saveflag)~=2
+            savepath = fullfile(cfg.outputmridir,'headshape');
+            hcp_write_figure([savepath,'.png'], gcf, 'resolution', 300);
+        end
+        
+    case 'surf'
+        %%
+        figure; hold on;
+        ft_plot_vol(cfg.headmodel, 'facecolor', 'none'); alpha 0.5;
+        ft_plot_mesh(cfg.sourcemodel, 'facecolor', 'cortex', 'edgecolor', 'none'); camlight;
+        
+        %%
+        figure; hold on;
+        ft_plot_mesh(cfg.sourcemodel, 'facecolor', 'cortex', 'edgecolor', 'none'); camlight;
+        ft_plot_mesh(cfg.leadfield.pos(cfg.leadfield.inside, :));
+        
 end
 %%
 % ft_determine_coordsys(individual_headmodel, 'interactive', 'no')
@@ -72,20 +89,20 @@ end
 %%
 % figure
 % ft_plot_vol(individual_headmodel, 'unit', 'mm');  %this is the brain shaped head model volume
-% ft_plot_sens(t_data.all.grad, 'unit', 'mm', 'coilsize', 10);  %this is the sensor locations  
+% ft_plot_sens(t_data.all.grad, 'unit', 'mm', 'coilsize', 10);  %this is the sensor locations
 % ft_plot_mesh(individual_grid.pos(individual_grid.inside, :));
 % ft_plot_ortho(mri_realigned.anatomy, 'transform', mri_realigned.transform, 'style', 'intersect');
 
 % quality check for the coregistration between headshape and mri
 % headshape    = ft_convert_units(shape,    'mm');
 % % headshapemri = ft_convert_units(shapemri, 'mm');
-% 
+%
 % v = headshapemri.pnt;
 % f = headshapemri.tri;
 % [f,v]=reducepatch(f,v, 0.2);
 % headshapemri.pnt = v;
 % headshapemri.tri = f;
-% 
+%
 % h = figure;
 % subplot('position',[0.01 0.51 0.48 0.48]);hold on;
 % % ft_plot_mesh(headshapemri,'edgecolor','none','facecolor',[0.5 0.6 0.8],'fidcolor','y','facealpha',0.3);

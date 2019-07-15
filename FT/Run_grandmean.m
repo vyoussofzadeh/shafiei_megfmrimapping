@@ -1,4 +1,4 @@
-a_data = vy_ave(cln_data);
+a_data = vy_ave(datain);
 savepath = fullfile(outd.sub,'Timelock');
 if exist(savepath, 'file') == 0, mkdir(savepath), end
 cfg = [];

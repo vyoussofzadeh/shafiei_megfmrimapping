@@ -1,7 +1,7 @@
 function a_data = vy_ave(data)
 
 tt = data.time{1};
-idx = find(tt==0);
+idx = tt==0;
 
 cfg                   = [];
 cfg.covariance        = 'yes';

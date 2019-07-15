@@ -8,14 +8,14 @@ if info.pflag == 1
     axis ij;
     ymax = max(maxperchan); ymin = min(maxperchan); xmax = info.nchan;
     subplot 121,
-    plot(maxperchan,'.'), xlabel('Trial number'), ylabel(info.metric),
+    plot(maxperchan,'.'), xlabel('Channel number'), ylabel(info.metric),
     axis([0.5 xmax+0.5 0.8*ymin 1.2*ymax]);
-    title('Trial')
+    title('Channel')
     subplot 122,
-    plot(maxpertrl,'.'), xlabel('Channel number'), ylabel(info.metric);
+    plot(maxpertrl,'.'), xlabel('Trial number'), ylabel(info.metric);
     xmax = info.ntrl; ymax = max(maxpertrl); ymin = min(maxpertrl);
     axis([0.5 xmax+0.5 (1-sign(ymin)*0.2)*ymin (1+sign(ymax)*0.2)*ymax]);
-    title('Channel')
+    title('Trial')
 end
 
 

@@ -24,38 +24,13 @@ task = input('Eneter the task: ');
 switch task
     case 1
         % - Auditory definition naming
-        tag = 'dfn';
+        tag = 'DFN'; tag1 = 'dfn';
         Evnt_IDs = 1; % questions
     case 2
         % - Visual picture naming
         tag = 'PN';
         Evnt_IDs = 3; % 3: images, 2: scrambled images
 end
-
-%%
-disp('1: Surface-based')
-disp('2: Volumetric');
-analysis = input('Eneter the analysis: ');
-
-switch analysis
-    case 1
-        mtag = 'source_surf';
-        disp('1: SPM source analysis (surface + BF)');
-        disp('2: Export ft to Brainstorm');
-        method = input('Method: ');
-    case 2
-        % end
-        disp('1: LCMV')
-        disp('2: Network+Connectvity');
-        disp('3: DICS Source');
-        disp('4: DICS Source + stats');
-        method = input('Method: ');
-        %-
-        disp('1: Low-res grid')
-        disp('2: High-res grid')
-        meshgrid = input('Mesh grid: ');
-end
-disp(['============']);
 
 %% analysis flag
 flag.freq = 0;     % TFR & FFT
@@ -86,7 +61,7 @@ switch year
     case 4
         ytag = {'16'};
     case 5
-        ytag = {'15'};
+        ytag = {'up'};
     case 6
         ytag = {'up'};
     case 7
@@ -96,17 +71,20 @@ switch year
     case 9
         ytag = {'11'};
 end
-disp(['============']);
+disp('============');
 
 %% Listing data
 % d = rdir([datadir,['/**/',ytag,'*/','sss','/*',tag,'*/*raw_tsss.fif']]);
 % Per year
-clear datafolder datafile
+clear datafolder datafile subj_all
 datafile1 = [];
 for j=1:numel(ytag)
     ytag1 = ytag{1,j};
     d = rdir([indir,['/**/',ytag1,'*/','sss','/*',tag,'*/*raw_tsss.fif']]);
     %     d = rdir([indir,['/**/',ytag1,'*/','sss','/*',tag,'*/*raw_sss.fif']]);
+    if exist('tag1','var')
+        d1 = rdir([indir,['/**/',ytag1,'*/','sss','/*',tag1,'*/*raw_tsss.fif']]); d=[d;d1];
+    end
     for i=1:length(d)
         [pathstr, name] = fileparts(d(i).name);
         datafolder{i} = pathstr;
@@ -119,9 +97,7 @@ end
 datafile1 = datafile1';
 disp(datafile1)
 
-disp('Subjects')
-disp(subj_all')
-disp(['============']);
+disp('============');
 
 %%
 disp('1: choose specific subject');
@@ -129,9 +105,11 @@ disp('2: do all');
 subsel = input('?');
 switch subsel
     case 1
+        disp('Subjects')
+        disp(subj_all')
         subsel1 = input('enter subject number?');
 end
-disp(['============']);
+disp('============');
 
 %%
 epoch_type = 'STI101';
@@ -141,7 +119,7 @@ cfg = [];
 cfg.layout = 'neuromag306mag.lay';
 lay = ft_prepare_layout(cfg);
 % ft_layoutplot(cfg);
-disp(['============']);
+disp('============');
 
 %%
 clear datafile2
@@ -151,7 +129,6 @@ switch subsel
     case 2
         datafile2 = datafile1;
 end
-
 
 %%
 for i = 1:size(datafile2,1)
@@ -163,12 +140,12 @@ for i = 1:size(datafile2,1)
     disp(datafile)
     disp(['subj:',subj])
     disp(['Date:',Date])
-    disp(['============']);
+    disp('============');
     
     %-elec/grad
     sens = ft_read_sens(datafile);
     sens = ft_convert_units(sens,'mm');
-    disp(['============']);
+    disp('============');
     
     %%
     if year>=4
@@ -182,10 +159,44 @@ for i = 1:size(datafile2,1)
     end
     cd(outd.sub)
     disp(['outputdir:',outd.sub])
-    disp(['============']);
+    disp('============');
     
     %% Preprocesssing
     Run_preprocess
+    %%
+    cln_data1 = cln_data;
+    cln_data = cln_data1;
+    
+    cfg = [];
+    cfg.savefile = [];
+    cfg.saveflag = 2;
+    cfg.foilim = [2 40];
+    cfg.plotflag  = 1;
+    vy_fft(cfg, cln_data);
+    grid on
+    grid minor
+    title('Before band-stop filtering');
+    
+    %% 
+    fsb = input('Enter the sop-band frequency?');
+    cfg = [];
+    cfg.bsfilter = 'yes';
+%     cfg.bsfreq = [29 32]; % or whatever you deem appropriate
+    cfg.bsfreq = [fsb-1 fsb+1]; % or whatever you deem appropriate
+%     cfg.bsfreq = [8 12;29 32]; % or whatever you deem appropriate
+    cln_data = ft_preprocessing(cfg, cln_data);
+%     cfg.bsfreq = [2 12]; % or whatever you deem appropriate
+
+
+    cfg = [];
+    cfg.savefile = [];
+    cfg.saveflag = 2;
+    cfg.foilim = [2 40];
+    cfg.plotflag  = 1;
+    vy_fft(cfg, cln_data);
+    grid on
+    grid minor
+    title('After band-stop filtering')
     
     %% FFT & TFR
     if flag.freq == 1
@@ -196,33 +207,83 @@ for i = 1:size(datafile2,1)
     if flag.time == 1
         switch task
             case 1
-                toi = [-0.3,0;1.1,1.8]; % Best of DN
-%                 toi = [-0.3,0;1.5,2]; % Best of DN
+                %                 toi = [-0.3,0;1.1,1.8]; % Best of DN
+                toi = [-0.3,0;1.2,1.6]; % Best of DN
+                %                 toi = [-0.3,0;0.8,1.2]; % Best of DN
+                %                 toi = [-0.3,0;0.4,0.8]; % Best of DN
+                %                 toi = [-0.3,0;1.5,2]; % Best of DN
             case 2
-                toi = [0,0.3;0.6,1.2]; % Best for PN, left IFG
+                %                 toi = [0,0.3;0.6,1.2]; % Best for PN, left IFG
+%                 toi = [0,0.3;0.4,1.2]; % Best for PN, left IFG
+%                 toi = [-0.3,0;0.4,1.2]; % Best for PN, left IFG
+                toi = [-0.3,0;0.4,1.2]; % Best for PN, left IFG
+%                 toi = [-0.3,0;0.4,0.8]; % Best for PN, left IFG
+                %                 toi = [0,0.3;0.4,1.6];
+%                 toi = [0,0.3;0.6,1.2];
         end
         Run_time
     end
     
     %% Grand Mean
-    if flag.gave == 1
-        Run_grandmean
-    end
+%     if flag.gave == 1
+%         Run_grandmean
+%     end
     %% Source analysis
     outputmridir = fullfile(outdir,'ft_process',yttag, subj,'anat'); % output dir
     if exist(outputmridir, 'file') == 0, mkdir(outputmridir); end
     
     %%
+    clear toi   
+    switch task
+        case 1
+            toi{1} = [-0.4,0;0.4,0.8];
+            toi{2} = [-0.4,0;0.8,1.2];
+%             toi{3} = [-0.4,0;1.2,1.6];
+            %     toi{4} = [-0.4,0;1.6,2];
+        case 2
+%             toi{1} = [0,0.3;0.4,0.8];
+            toi{1} = [0,0.3;0.6,1.2];
+%             toi{3} = [0,0.3;1.2,1.6];
+            %     toi{4} = [0,0.4;1.6,2];
+    end
+    
+    %% Processing
+    disp('1: Surface-based')
+    disp('2: Volumetric');
+    analysis = input('Eneter the analysis: ');
+    
     switch analysis
         case 1
-            %% Surface-based analysis
+            mtag = 'source_surf';
+            disp('1: SPM source analysis (surface + BF)');
+            disp('2: Export ft to Brainstorm');
+            disp('3: Source-based bf');
+            method = input('Method: ');
+        case 2
+            % end
+            disp('1: LCMV')
+            disp('2: Network+Connectvity');
+            disp('3: DICS Source');
+            method = input('Method: ');
+            %-
+%             disp('1: Low-res grid')
+%             disp('2: High-res grid')
+%             meshgrid = input('Mesh grid: ');
+            meshgrid = 1;
+    end
+    
+    switch analysis
+        case 1
+            % Surface-based analysis
             Run_surfacebased
             
         case 2
-            %% Volumetric-based analysis
+            
+            % Volumetric-based analysis
             anatomy_check_flag = 2;
             Run_volumetric
     end
+    disp('============');
     
     %%
     pause

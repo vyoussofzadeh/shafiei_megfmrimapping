@@ -7,6 +7,6 @@ switch method
         Run_bs
     case 3
         %% Other implementations
-        %             vy_surfacebasedsource2
-        %             vy_surfacebasedsource_dics
+        vy_surfacebasedsource2
+        vy_surfacebasedsource_dics
 end

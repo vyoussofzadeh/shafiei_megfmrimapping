@@ -8,7 +8,7 @@
 %     end
 %     toi = [-0.2,0;1,1.5];
 % toi = [-0.3,0;0,1.5];
-ep_data = vy_epoch(cln_data, toi);
+ep_data = vy_epoch(datain, toi);
 
 %- Appending data
 cfg = [];

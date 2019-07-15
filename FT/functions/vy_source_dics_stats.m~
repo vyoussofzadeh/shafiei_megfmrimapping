@@ -5,6 +5,8 @@ cfg.savefile = [];
 cfg.saveflag = 2;
 cfg.foilim = [2 40];
 cfg.plotflag  = 2;
+cfg.tapsmofrq = 1;
+cfg.taper    = 'hanning';
 f_data.bsl = vy_fft(cfg, ep_data.bsl); f_data.bsl.elec = cfg_main.sens;
 f_data.pst = vy_fft(cfg, ep_data.pst); f_data.pst.elec = cfg_main.sens;
 
@@ -44,7 +46,10 @@ cfg.savefile = [];
 cfg.saveflag = 2;
 cfg.foilim = [f f];
 cfg.plotflag  = 2;
-f_data.app = vy_fft(cfg, ep_data.app); f_data.app.elec = cfg_main.sens;
+cfg.tapsmofrq = 4;
+cfg.taper    = 'dpss';
+% cfg.taper    = 'hanning';
+[f_data.app,tapsmofrq] = vy_fft(cfg, ep_data.app); f_data.app.elec = cfg_main.sens;
 f_data.bsl = vy_fft(cfg, ep_data.bsl); f_data.bsl.elec = cfg_main.sens;
 f_data.pst = vy_fft(cfg, ep_data.pst); f_data.pst.elec = cfg_main.sens;
 
@@ -53,8 +58,15 @@ f_data.pst = vy_fft(cfg, ep_data.pst); f_data.pst.elec = cfg_main.sens;
 % f_data.app = vy_fft(ep_data.app, [f,f], 0,[],0); f_data.app.elec = sens;
 % f_data.bsl = vy_fft(ep_data.bsl, [f,f], 0,[],0); f_data.bsl.elec = sens;
 % f_data.pst = vy_fft(ep_data.pst, [f,f], 0,[],0); f_data.pst.elec = sens;
+
 %%
-[s_data_dics, ~] = vy_source_freq(f_data, cfg_main.grid, cfg_main.headmodel, 'dics_stat');
+cfg = [];
+cfg.headmodel = cfg_main.headmodel;
+% cfg.sourcemodel = cfg_main.sourcemodel;
+cfg.grid = cfg_main.grid;
+cfg.mtag = cfg_main.mtag;
+s_data_dics = vy_source_freq(cfg, f_data);
+% [s_data_dics, ~] = vy_source_freq(f_data, cfg_main.grid, cfg_main.headmodel, 'dics_stat');
 stat = vy_source_stat_montcarlo(s_data_dics);
 stat.pos     = cfg_main.template_grid.pos;
 stat.dim     = cfg_main.template_grid.dim;
@@ -68,11 +80,27 @@ stats1  = stat;
 stats1.stat =  tmp2;
 stats1.mask = stat.inside;
 
+% disp('1: Postive effects')
+% disp('2: Negative effects')
+% disp('3: Both effects')
+% effect = input(':');
+% 
+stats2 = stats1;
+% if effect == 1
+%     stats2.stat(stats1.stat<0)=0;
+% elseif effect == 2
+%     stats2.stat(stats1.stat>0)=0;
+% elseif effect == 3
+%     stats2.stat = stats1.stat;
+% end
+stats2.stat(stats2.stat>0)=0;
+stats2.stat(isnan(stats2.stat))=0;
+
 %%
-param = [];
-param.mask = 'stat';
-param.loc = 'min';
-source_diff_dics = vy_source_plot(stats1,cfg_main.template_mri,param,2);
+% param = [];
+% param.mask = 'stat';
+% param.loc = 'min';
+% source_diff_dics = vy_source_plot(stats1,cfg_main.template_mri,param,2);
 
 %%
 % cfg = [];
@@ -90,19 +118,34 @@ source_diff_dics = vy_source_plot(stats1,cfg_main.template_mri,param,2);
 % savedata = fullfile(outputdir_dics,['s_dics_',subj,'_',run,'.mat']);
 % save(outputdir_dics, 'source_diff_dics', '-v7.3');
 
-mtd = 'source_dics_stats';
-param = [];
-param.mask = 'stat';
-param.loc = 'min';
-source_int_dics = vy_source_plot(stats1,cfg_main.template_mri,param,2);
+% mtd = 'source_dics_stats';
 % savefig = fullfile(outputdir_dics,[num2str(f),'Hz','_1_',cfg_main.subj]);
-% hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
+% savefig = fullfile(outputdir_dics,[num2str(f-tapsmofrq),'_',num2str(f+tapsmofrq),'Hz','_1_',cfg_main.subj]);
+savefig = fullfile(outputdir_dics,[num2str(cfg_main.toi(2,1)),'_',num2str(cfg_main.toi(2,2)),'sec_',num2str(f-tapsmofrq),'_',num2str(f+tapsmofrq),'Hz','_1_',cfg_main.subj]);
+
+
+cfg = [];
+cfg.mask = 'stat';
+cfg.loc  = 'min';
+cfg.template = cfg_main.template_mri;
+cfg.savefile = savefig;
+cfg.volnorm  = 2; % yes: 1
+source_int_dics = vy_source_plot(cfg, stats2);
+pause(1),
+
+% param = [];
+% param.mask = 'stat';
+% param.loc = 'min';
+% source_int_dics = vy_source_plot(stats1,cfg_main.template_mri,param,2);
+% savefig = fullfile(outputdir_dics,[num2str(f),'Hz','_1_',cfg_main.subj]);
+% % hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
+% print(savefig,'-depsc')
 
 clear savepath
-savepath{1} = fullfile(outputdir_dics,[num2str(f),'Hz','_2_',cfg_main.subj]);
-savepath{2} = fullfile(outputdir_dics,[num2str(f),'Hz','_3_',cfg_main.subj]);
-% vy_mapvisualisation(source_int_dics,'pow',0.6, savepath);
-vy_mapvisualisation(source_int_dics,param.mask,0.6, []);
+savepath{1} = fullfile(outputdir_dics,[num2str(cfg_main.toi(2,1)),'_',num2str(cfg_main.toi(2,2)),'sec_',num2str(f),'Hz','_2_',cfg_main.subj]);
+savepath{2} = fullfile(outputdir_dics,[num2str(cfg_main.toi(2,1)),'_',num2str(cfg_main.toi(2,2)),'sec_',num2str(f),'Hz','_3_',cfg_main.subj]);
+vy_mapvisualisation(source_int_dics,cfg.mask,0.6, savepath);
+% vy_mapvisualisation(source_int_dics,cfg.mask,0.6, []);
 
 % restoredefaultpath
 % addpath((cfg_main.allpath.ft_path));
@@ -110,7 +153,7 @@ vy_mapvisualisation(source_int_dics,param.mask,0.6, []);
 % addpath(genpath(cfg_main.allpath.hcp_path));
 % addpath(genpath(cfg_main.allpath.cd_org));
 % addpath(genpath(cfg_main.allpath.exfig_path));
-% 
+%
 % cfg = [];
 % cfg.maskparam = 'pow';
 % cfg.save.savepath =  savepath;

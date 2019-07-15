@@ -1,7 +1,7 @@
-function [data_int, data_intpar, coor] = vy_parcellate(data, atlas_path, mask)
+function [data_int, data_intpar, coor] = vy_parcellate(data, atlas, mask)
 
 % atlas = ft_read_atlas(fullfile(atlas_path,'aal/ROI_MNI_V4.nii'));
-atlas = ft_read_atlas(fullfile(atlas_path,'brainnetome/BNA_MPM_thr25_1.25mm.nii'));
+% atlas = ft_read_atlas(fullfile(atlas_path,'brainnetome/BNA_MPM_thr25_1.25mm.nii'));
 
 
 cfg = [];

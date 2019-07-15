@@ -28,7 +28,13 @@ sourceint_pow.anatomy(isnan(sourceint_pow.anatomy(:))) = 0;
 clear savepath
 savepath{1} = [name,'_left'];
 savepath{2} = [name,'_right'];
-vy_mapvisualisation(sourceint_pow,'anatomy',0.7, savepath);
+cfg = [];
+cfg.subj = 'par';
+cfg.mask = 'anatomy';
+cfg.thre = 0.7;
+cfg.savepath = savepath;
+vy_mapvisualisation(cfg, sourceint_pow);
+% vy_mapvisualisation(sourceint_pow,'anatomy',0.7, savepath);
 
 vy_ROI_report(data_intpar,.7, coor, 'anatomy');
 savepath = ['ROI_',name];

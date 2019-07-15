@@ -54,7 +54,6 @@ else
         headshape = ft_read_headshape(cfg_main.hsfile);
         headshape = ft_convert_units(headshape, 'mm');
         
-        
         %%
         cfg = [];
         cfg.method = 'headshape';
@@ -65,15 +64,16 @@ else
         cfg.spmversion     = 'spm12';
         mri_realigned = ft_volumerealign(cfg, mri_realigned);
         
+        
         %%
-        cfg = [];
-        cfg.method = 'headshape';
-        cfg.headshape.interactive = 'no';
-        cfg.headshape.icp = 'yes';
-        cfg.headshape.headshape = headshape;
-        cfg.coordsys = 'neuromag';
-        cfg.spmversion     = 'spm12';
-        mri_realigned = ft_volumerealign(cfg, mri_realigned);
+%         cfg = [];
+%         cfg.method = 'headshape';
+%         cfg.headshape.interactive = 'no';
+%         cfg.headshape.icp = 'yes';
+%         cfg.headshape.headshape = headshape;
+%         cfg.coordsys = 'neuromag';
+%         cfg.spmversion     = 'spm12';
+%         mri_realigned = ft_volumerealign(cfg, mri_realigned);
         
         %% == to check everything went right with co-reg!
         ft_determine_coordsys(mri_realigned, 'interactive', 'no')
@@ -175,6 +175,8 @@ if cfg_main.plotflag == 1
     
     %%
 end
+
+
 
 %%
 % create the individual grid from mni grid

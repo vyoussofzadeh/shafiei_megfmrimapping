@@ -16,6 +16,31 @@ cfg_init = [];
 cfg_init.path_tools = '/data/MEG/Vahab/Github/MCW-MEGlab/tools';
 [allpath, atlas] = vy_init(cfg_init);
 
+%% Processing
+disp('1: Surface-based')
+disp('2: Volumetric');
+analysis = input('Eneter the analysis: ');
+
+switch analysis
+    case 1
+        mtag = 'source_surf';
+        disp('1: SPM source analysis (surface + BF)');
+        disp('2: Export ft to Brainstorm');
+        disp('3: Source-based bf');
+        method = input('Method: ');
+    case 2
+        % end
+        disp('1: LCMV')
+        disp('2: Network+Connectvity');
+        disp('3: DICS Source');
+        %             method = input('Method: ');
+        method = sel.method_sel;       
+        %-
+        disp('1: Low-res grid')
+        disp('2: High-res grid')
+        meshgrid = input('Mesh grid: ');
+end
+
 %%
 disp('1: Definition naming')
 disp('2: Picture naming');
@@ -151,18 +176,6 @@ for i = 1:size(datafile1,1)
         Run_freq
     end
     
-    %%
-    cln_data_BAK = cln_data;
-    
-    %%
-    cln_data = cln_data_BAK;
-    cfg                = [];
-    %     cfg.hpfilter       = 'yes';        % enable high-pass filtering
-    cfg.lpfilter       = 'yes';        % enable low-pass filtering
-    %     cfg.hpfreq       = 1;           % set up the frequency for high-pass filter
-    cfg.lpfreq         = 20;          % set up the frequency for low-pass filter
-    cln_data          = ft_preprocessing(cfg,cln_data);
-    
     %% Timelock
     if flag.time == 1
         switch task
@@ -183,25 +196,18 @@ for i = 1:size(datafile1,1)
     outputmridir = fullfile(outdir,'ft_process',yttag, subj,'anat'); % output dir
     if exist(outputmridir, 'file') == 0, mkdir(outputmridir); end
     
-    %%
+    %% Processing
     switch analysis
         case 1
-            %% Surface-based analysis
-            vy_surfacebasedsource2
-            vy_surfacebasedsource_dics
+            % Surface-based analysis
+            Run_surfacebased
             
         case 2
-            %% Volumetric-based analysis
+            % Volumetric-based analysis
             anatomy_check_flag = 2;
             Run_volumetric
-            
-        case 3
-            %% SPM surface-based
-            Run_spm
-        case 4
-            %% BrainStorm export preprocessed ft-IC
-            Run_bs
     end
+    disp('============');
     
     %%
     pause

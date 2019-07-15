@@ -1,44 +1,55 @@
-function source_int = vy_source_plot(data,template_mri,param,n)
+function source_int = vy_source_plot(cfg_main, data)
 
 cfg = [];
-cfg.parameter = param.mask;
+cfg.parameter = cfg_main.mask;
 % cfg.interpmethod = 'sphere_avg';
 cfg.interpmethod = 'smudge';
 cfg.coordsys     = 'mni';
-source_int = ft_sourceinterpolate(cfg, data, template_mri);
+source_int = ft_sourceinterpolate(cfg, data, cfg_main.template);
 
-if n==1
+if cfg_main.volnorm == 1
     cfg = [];
     source_int = ft_volumenormalise(cfg, source_int);
 end
 
-cfg              = [];
-cfg.method       = 'ortho';
-cfg.funparameter = param.mask;
-cfg.location     = param.loc;
-cfg.funcolormap =  brewermap(256, '*RdYlBu');
-ft_sourceplot(cfg,source_int);
+% cfg              = [];
+% cfg.method       = 'ortho';
+% cfg.funparameter = cfg_main.mask;
+% cfg.location     = cfg_main.loc;
+% cfg.funcolormap =  brewermap(256, '*RdYlBu');
+% ft_sourceplot(cfg,source_int);
+
+% if ~isempty(cfg_main.savefile)
+%     print([cfg_main.savefile,'_1'],'-depsc')   
+% end
+
 
 %%
 source_int1 = source_int;
-tmp = abs(source_int1.(param.mask));
+tmp = abs(source_int1.(cfg_main.mask));
 tmp = (tmp - min(tmp(:))) ./ (max(tmp(:)) - min(tmp(:))); %
-source_int1.(param.mask) = tmp;
+source_int1.(cfg_main.mask) = tmp;
 
 % plot multiple 2D axial slices
 cfg = [];
 % cfg.method        = 'ortho';
 cfg.method        = 'slice';
-cfg.funparameter  = param.mask;
+cfg.funparameter  = cfg_main.mask;
 cfg.maskparameter = cfg.funparameter;
 cfg.funcolorlim   = [0.1 1];
 cfg.opacitylim    = [0.1 1];
 cfg.nslices       = 12;
-cfg.slicerange    = [20,50];
+cfg.slicerange    = [10,60];
 cfg.slicedim      = [3];
 cfg.opacitymap    = 'rampup';
 cfg.funcolormap =  brewermap(256, '*RdYlBu');
 ft_sourceplot(cfg, source_int1);
+
+if ~isempty(cfg_main.savefile)
+    pause(0.5)
+%     print([cfg_main.savefile,'_2'],'-depsc')
+    print([cfg_main.savefile,'_2'],'-dpng')  
+end
 
 
 %%

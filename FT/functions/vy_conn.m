@@ -5,6 +5,7 @@ cfg.method = conn_par.method;
 idx = conn_par.idx;
 cfg.complex = conn_par.complex;
 source_conn = ft_connectivityanalysis(cfg, source);
+% source_conn1 = vy_plv(cfg, source);
 source_conn.dimord    = 'pos_pos';
 
 %-

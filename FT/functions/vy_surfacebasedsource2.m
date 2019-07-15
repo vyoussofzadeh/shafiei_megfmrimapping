@@ -117,7 +117,7 @@ m = source.avg.pow;
 % figure; ft_multiplotER(cfg, data_cmb);
 
 %%
-peaksel = 10;
+peaksel = 3;
 % datain = t_data.pst;
 %%
 stat = stats.means;

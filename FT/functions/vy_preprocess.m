@@ -1,6 +1,5 @@
 function [f_data, ecg_data] = vy_preprocess(cfg_main)
 
-
 cfg                         = [];
 cfg.dataset                 = cfg_main.datafile;
 cfg.trialfun                = 'ft_trialfun_general'; % this is the default
@@ -26,8 +25,8 @@ cfg.baselinewindow = [-0.45 0.0];
 f_data = ft_preprocessing(cfg);
 
 
-cfg.channel = {'ECG064'};
-ecg_data = ft_preprocessing(cfg);
+% cfg.channel = {'ECG064'};
+% ecg_data = ft_preprocessing(cfg);
 
 
 %% notch filter

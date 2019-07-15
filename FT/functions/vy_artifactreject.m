@@ -11,12 +11,13 @@ else
     cfg.metric = 'kurtosis';
     cfg.channel = 'all';
     cfg.latency = cfg_main.latency;
-    [level,info] = vy_compute_metric(cfg,dat); metric.kurt = level;
+    [level,info] = vy_compute_metric(cfg,dat); 
+%     metric.kurt = level;
     info.pflag = cfg_main.pflag;
     [maxperchan, maxpertrl, maxperchan_all, maxpertrl_all] = vy_plot_chantrl(info,level);
     
-    thresh.(cfg.metric) = 0.95.*max(maxpertrl_all); btrl.(cfg.metric) = find(maxpertrl > thresh.(cfg.metric)); % Trials
-    thresh.(cfg.metric) = 0.95.*max(maxperchan_all); bch.(cfg.metric) = find(maxperchan > thresh.(cfg.metric)); % Channel
+    thresh.(cfg.metric) = cfg_main.rejectpercentage.*max(maxpertrl_all); btrl.(cfg.metric) = find(maxpertrl > thresh.(cfg.metric)); % Trials
+    thresh.(cfg.metric) = cfg_main.rejectpercentage.*max(maxperchan_all); bch.(cfg.metric) = find(maxperchan > thresh.(cfg.metric)); % Channel
     
     %% zvalue
     cfg = [];
@@ -24,12 +25,13 @@ else
     cfg.metric = 'zvalue';
     cfg.channel = 'all';
     cfg.latency = cfg_main.latency;
-    [level,info] = vy_compute_metric(cfg,dat); metric.kurt = level;
+    [level,info] = vy_compute_metric(cfg,dat); 
+%     metric.kurt = level;
     info.pflag = cfg_main.pflag;
     [maxperchan, maxpertrl, maxperchan_all, maxpertrl_all] = vy_plot_chantrl(info,level);
     
-    thresh.(cfg.metric) = 0.95.*max(maxpertrl_all); btrl.(cfg.metric) = find(maxpertrl > thresh.(cfg.metric)); % Trials
-    thresh.(cfg.metric) = 0.95.*max(maxperchan_all); bch.(cfg.metric) = find(maxperchan > thresh.(cfg.metric)); % Channel
+    thresh.(cfg.metric) = cfg_main.rejectpercentage.*max(maxpertrl_all); btrl.(cfg.metric) = find(maxpertrl > thresh.(cfg.metric)); % Trials
+    thresh.(cfg.metric) = cfg_main.rejectpercentage.*max(maxperchan_all); bch.(cfg.metric) = find(maxperchan > thresh.(cfg.metric)); % Channel
     
     %% Var
     cfg = [];
@@ -37,15 +39,17 @@ else
     cfg.metric = 'var';
     cfg.channel = 'all';
     cfg.latency = cfg_main.latency;
-    [level,info] = vy_compute_metric(cfg,dat); metric.kurt = level;
+    [level,info] = vy_compute_metric(cfg,dat); 
+%     metric.kurt = level;
     info.pflag = cfg_main.pflag;
     [maxperchan, maxpertrl, maxperchan_all, maxpertrl_all] = vy_plot_chantrl(info,level);
     
-    thresh.(cfg.metric) = 0.95.*max(maxpertrl_all); btrl.(cfg.metric) = find(maxpertrl > thresh.(cfg.metric)); % Trials
-    thresh.(cfg.metric) = 0.95.*max(maxperchan_all); bch.(cfg.metric) = find(maxperchan > thresh.(cfg.metric)); % Channel
+    thresh.(cfg.metric) = cfg_main.rejectpercentage.*max(maxpertrl_all); btrl.(cfg.metric) = find(maxpertrl > thresh.(cfg.metric)); % Trials
+    thresh.(cfg.metric) = cfg_main.rejectpercentage.*max(maxperchan_all); bch.(cfg.metric) = find(maxperchan > thresh.(cfg.metric)); % Channel
     
     %%
     btrl_all = unique([btrl.kurtosis,btrl.var,btrl.zvalue]);
+%     btrl_all = unique([btrl.kurtosis,btrl.var,btrl.zvalue]);
     bch_all = unique([bch.kurtosis;bch.var;bch.zvalue]);
     disp('Bad trials:')
     disp(btrl_all);
@@ -61,7 +65,7 @@ else
     cfg.trials = find(~ismember(1:length(dat.trial),btrl_all));
     dat = ft_selectdata(cfg, dat);
     
-    if length(bch_all) < 8
+    if length(bch_all) < 10
         cfg = [];
         cfg.channel = ['all';bch_all_label];
         dat = ft_selectdata(cfg, dat);

@@ -21,9 +21,9 @@ meanpow = squeeze(mean(freq_avg_bsl.powspctrm, 1));
 %     ylabel('Frequency (Hz)');
 %     clim = max(abs(meanpow(:)));
 %     caxis([-clim clim]);
-
-% addpath('thirdparty\brewermap'); % or wherever you put brewermap
-
+% 
+% % addpath('thirdparty\brewermap'); % or wherever you put brewermap
+% 
 %     colormap(brewermap(256, '*RdYlBu'));
 %     h = colorbar();
 %     ylabel(h, 'Power vs baseline (dB)');
@@ -39,31 +39,41 @@ freq_interp = linspace(1, 40, 512);
 [tim_grid_interp, freq_grid_interp] = meshgrid(tim_interp, freq_interp);
 
 % And interpolate:
-pow_interp = interp2(tim_grid_orig, freq_grid_orig, meanpow,tim_grid_interp, freq_grid_interp, 'spline');
+pow_interp = interp2(tim_grid_orig, freq_grid_orig, meanpow, tim_grid_interp, freq_grid_interp, 'spline');
 
 %%
-%     figure();
-%     imagesc(tim_interp, freq_interp, pow_interp);
-%     xlim([-0.5 2]);
-%     axis xy;
-%     xlabel('Time (s)');
-%     ylabel('Frequency (Hz)');
-%     clim = max(abs(meanpow(:)));
-%     caxis([-clim clim]);
-%     colormap(brewermap(256, '*RdYlBu'));
-%     h = colorbar();
-%     ylabel(h, 'Power vs baseline (dB)');
-%
-%     % Let's also add a line at t = 0s for clarity:
-%     hold on;
-%     plot(zeros(size(freq_interp)), freq_interp, 'k:');
+% figure();
+% imagesc(tim_interp, freq_interp, pow_interp);
+% xlim([-0.5 2]);
+% axis xy;
+% xlabel('Time (s)');
+% ylabel('Frequency (Hz)');
+% clim = max(abs(meanpow(:)));
+% caxis([-clim clim]);
+% colormap(brewermap(256, '*RdYlBu'));
+% h = colorbar();
+% ylabel(h, 'Power vs baseline (dB)');
+% 
+% % Let's also add a line at t = 0s for clarity:
+% hold on;
+% plot(zeros(size(freq_interp)), freq_interp, 'k:');
 
 %%
-[~,idx] = min(pow_interp(:));
-[row,col] = ind2sub(size(pow_interp),idx);
+% while n==1
+pow_interp1  = pow_interp(50:end,50:end);
+tim_interp1  = tim_interp(50:end);
+freq_interp1 = freq_interp(50:end);
 
-time_of_interest = tim_interp(col);
-freq_of_interest = freq_interp(row);
+%%
+[~,idx] = min(pow_interp1(:));
+[row,col] = ind2sub(size(pow_interp1),idx);
+
+time_of_interest = tim_interp1(col);
+freq_of_interest = freq_interp1(row);
+
+% [a, idx] = min(pow_at_toi(20:end,:));
+% freq_interp(idx)
+
 % time_of_interest = 1.6;
 % freq_of_interest = 20;
 timind = nearest(tim_interp, time_of_interest);
@@ -73,9 +83,9 @@ pow_at_foi = pow_interp(freqind,:);
 
 %%
 figure();
-ax_main = axes('Position', [0.1 0.2 0.55 0.55]);
+ax_main  = axes('Position', [0.1 0.2 0.55 0.55]);
 ax_right = axes('Position', [0.7 0.2 0.1 0.55]);
-ax_top = axes('Position', [0.1 0.8 0.55 0.1]);
+ax_top   = axes('Position', [0.1 0.8 0.55 0.1]);
 
 %%
 axes(ax_main);
@@ -111,6 +121,12 @@ ax_top.XTickLabel = [];
 ylabel('Power (dB)');
 hold on;
 plot([0 0], [-clim clim], 'k:');
+
+%%
+% [a, idx] = min(pow_at_toi(20:end,:));
+% freq_interp(idx)
+% % 
+% figure,plot(freq_interp,pow_at_toi)
 
 %%
 axes(ax_right);

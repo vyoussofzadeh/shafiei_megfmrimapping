@@ -2,13 +2,16 @@
 bsdatadir = fullfile(indir,subj,'brainstorm_db/data');
 d = rdir(fullfile(bsdatadir,subj,['/@*',tag,'*'],'/channel_vectorview306*.mat'));
 if isempty(d)
-        d = rdir(fullfile(bsdatadir,subj,['/*',tag,'*'],'/channel_vectorview306*.mat'));
+    d = rdir(fullfile(bsdatadir,subj,['/*',tag,'*'],'/channel_vectorview306*.mat'));
+    if exist('tag1','var') && isempty(d)
+        d = rdir(fullfile(bsdatadir,subj,['/*',tag1,'*'],'/channel_vectorview306*.mat'));
+    end
 end
 
 %%
 for i=1:length(d)
     [pathstr, name] = fileparts(d(i).name);
-%     databf{i} = pathstr;
+    %     databf{i} = pathstr;
     datafilebf{i} = d(i).name;
 end
 disp(datafilebf')
@@ -35,8 +38,20 @@ disp('channel modification was completed');
 
 %%
 bssavedir = fullfile(indir,subj,'brainstorm_db/');
-save(fullfile(bssavedir,[tag,'_BS_channels']),'chan_updated');
-save(fullfile(bssavedir,[tag,'_IC_data']),'cln_data');
+save(fullfile(bssavedir,[tag,'_',subj,'_BS_channels']),'chan_updated');
+save(fullfile(bssavedir,[tag,'_',subj,'_IC_data']),'cln_data','-v7.3');
+
+%% Converting to fif file
+% isepch = ft_datatype(cln_data, 'raw');
+% hdr = ft_read_header(datafile);
+% test_var = cln_data;
+% test_var.hdr = hdr;
+% 
+% if exist('Run') ==2
+%     fieldtrip2fiff(fullfile(bssavedir,[tag,'_',subj,'_IC_data.fif']), test_var)
+% else
+%     fieldtrip2fiff(fullfile(bssavedir,[tag,'_',subj,'_',Run,'_IC_data.fif']), test_var)
+% end
 
 %%
 restoredefaultpath

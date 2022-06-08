@@ -16,6 +16,17 @@ else
             end
             val1 = unique(val);
             Evnt_IDs = mode(val);
+            [M,F,C] = mode(val);
+            
+%             n = histc(myStr,a);
+%             [n,idx] = sort(n);
+%             myFreq = myStr(idx);
+            
+            a = unique(val);
+            n = histc(val,a);
+            [n,idx] = sort(n);
+            myFreq = a(idx); %Unique Values
+                     
             %         switch task
             %             case 1
             %                 Evnt_IDs =  min(val1);
@@ -31,6 +42,15 @@ else
             disp('filtering was completed');
             save(savepath, 'f_data', '-v7.3');
         end
+    end
+    
+    switch task
+        case 2
+            %% Adjust Offset Of Trial
+            sampling_frequency = f_data.hdr.Fs;
+            cfg = [];
+            cfg.offset = -36 * sampling_frequency / 1000; % samples
+            f_data = ft_redefinetrial(cfg, f_data);
     end
     
     %%
@@ -62,18 +82,18 @@ else
     % r_data   = ft_rejectvisual(cfg, f_data);
     
     %% Inspecting bad data
-    % cfg = [];
-    % cfg.viewmode = 'vertical';
-    % cfg.continuous = 'no';
-    % cfg.trials     = report.btrl;
-    % cfg.channel   = report.bchan;
-    % ft_databrowser(cfg,f_data);
-    
+%     cfg = [];
+%     cfg.viewmode = 'vertical';
+%     cfg.continuous = 'no';
+%     cfg.trials     = report.btrl;
+%     cfg.channel   = report.bchan;
+%     ft_databrowser(cfg,f_data);
+%     
     %% ICA cleaning
     if flag.preprocessing.ica == 1
         cfg = [];
         cfg.savepath = outd.sub;
-%         cfg.savepath = fullfile(outd.sub,['ic_',subj,'.mat']);
+        cfg.savefile = fullfile(outd.sub,['ic_',subj,'.mat']);
         cfg.saveflag = 1;
         cfg.overwrite = 2;
         cfg.lay = lay;
@@ -81,7 +101,7 @@ else
         cfg.subj = subj;
         cfg.allpath = allpath;
         cfg.select = ic_selection;
-%         cln_data = vy_ica_cleaning_light(cfg, r_data);
+        %         cln_data = vy_ica_cleaning_light(cfg, r_data);
         cln_data = vy_ica_cleaning_light2(cfg, r_data);
         disp('ICA cleaning was completed');
     end

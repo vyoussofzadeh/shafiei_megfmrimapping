@@ -1,4 +1,4 @@
-function [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm, mri_realigned_ctf] = vy_mri_neuromag2(cfg_main)
+function [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm] = vy_mri_neuromag2(cfg_main)
 
 if exist(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']), 'file') == 2
     load(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']));
@@ -115,6 +115,8 @@ else
     individual_grid_10mm     = ft_prepare_sourcemodel(cfg);
     
     %%
+     
+    %%
     % load('standard_sourcemodel3d8mm');sourcemodel = ft_convert_units(sourcemodel, 'mm');
     clear template_grid
     load temp_grid_8mm % high-res
@@ -131,14 +133,14 @@ else
     
 end
 %%
-cfg = [];
-cfg.method = 'headshape';
-cfg.headshape.interactive = 'no';
-cfg.headshape.icp = 'yes';
-cfg.headshape.headshape = headshape;
-cfg.coordsys = 'ctf';
-cfg.spmversion     = 'spm12';
-mri_realigned_ctf = ft_volumerealign(cfg, mri_realigned);
+% cfg = [];
+% cfg.method = 'headshape';
+% cfg.headshape.interactive = 'no';
+% cfg.headshape.icp = 'yes';
+% cfg.headshape.headshape = headshape;
+% cfg.coordsys = 'ctf';
+% cfg.spmversion     = 'spm12';
+% mri_realigned_ctf = ft_volumerealign(cfg, mri_realigned);
 
 %     end
 

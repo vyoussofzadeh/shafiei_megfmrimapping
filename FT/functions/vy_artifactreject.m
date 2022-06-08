@@ -76,7 +76,7 @@ else
     report.btrl = btrl_all; report.bchan = bch_all_label_disp;   
     r_data = dat;
     if cfg_main.saveflag ==1
-        save(cfg_main.savepath, 'r_data', 'report','-v7.3');
+%         save(cfg_main.savepath, 'r_data', 'report','-v7.3');
     end
 end
 

@@ -13,6 +13,7 @@ sourcemodel_filename  =fullfile(anatomy_dir, [subject, '_sourcemodel.mat']); %st
 
 % load in the cortical sheet
 filename = fullfile(inp_dir,['workbench/' subject, '.L.midthickness.8k_fs_LR.surf.gii']);
+% filename = fullfile(inp_dir,['workbench/' subject, '.L.midthickness.4k_fs_LR.surf.gii']);
 filename2 = strrep(filename, '.L.', '.R.');
 
 sourcemodel = ft_read_headshape({filename, filename2});
@@ -21,10 +22,13 @@ sourcemodel = ft_read_headshape({filename, filename2});
 datapath = fullfile(anatomy_dir);
 load(fullfile(datapath,[subject,'_transform_vox']));
 T1 = transform_vox;
-load(fullfile(datapath,[subject,'_transform_vox2neuromag']));
-T2 = transform_vox2neuromag;
+% load(fullfile(datapath,[subject,'_transform_vox2neuromag']));
+% T2 = transform_vox2neuromag;
+load(fullfile(datapath,[subject,'_transform_vox2spm']));
+T2 = transform_vox2spm;
 
-sourcemodel = ft_transform_geometry((T2/T1), sourcemodel);
+
+sourcemodel = ft_transform_geometry((T1/T), sourcemodel);
 sourcemodel.inside = sourcemodel.atlasroi>0;
 sourcemodel = rmfield(sourcemodel, 'atlasroi');
 

@@ -1,10 +1,9 @@
-function cln_data = vy_ica_cleaning_light2(cfg_main, data_in)
+function [cln_data,report_ic] = vy_ica_cleaning_light2(cfg_main, data_in)
 
-savefile = fullfile(cfg_main.savepath,['ic_',cfg_main.subj,'.mat']);
 % satis = 0;
 disp('ica cleaning ...');
-if exist(savefile, 'file') && (cfg_main.overwrite) == 2
-    load(savefile)
+if exist(cfg_main.savefile, 'file') && (cfg_main.overwrite) == 2
+    load(cfg_main.savefile)
 else
     
     savepath = fullfile(cfg_main.savepath,'ica');
@@ -16,7 +15,7 @@ else
     cfg.lay = cfg_main.lay;
     cfg.subj = cfg_main.subj;
     cfg.n = n;
-    cfg.savefig = 1;
+    cfg.savefig = 0;
     cfg.allpath = cfg_main.allpath;
     comp = vy_ica(cfg, data_in);
     %     title(savepath)
@@ -30,12 +29,12 @@ else
     cfg.savepath = [];
     cfg.latency  = [comp.time{1}(1),comp.time{1}(end)];%[-200,900]./1000;
     cfg.rejectpercentage = .95;
-    [IC_data,report] = vy_artifactreject(cfg, comp);
-    save('ica/ICAreport.mat','report');
-    disp(report)
+    [~,report_ic] = vy_artifactreject(cfg, comp);
+    save('ica/ICAreport.mat','report_ic');
+    disp(report_ic)
     
     %% Rejecting bad trials, identified by the ICA
-    trials = find(~ismember(1:length(comp.trial),report.btrl));
+    trials = find(~ismember(1:length(comp.trial),report_ic.btrl));
     cfg = [];
     cfg.trials = trials;
     data_in = ft_selectdata(cfg, data_in);
@@ -49,14 +48,33 @@ else
     %     set(gcf, 'Position', [600   600   700   500]);
     
     %% Rejecting bad ICAs and prjecting back into data space
+%     disp('=============================')
+%     disp('suggested')
+%     disp(report_ic.bchan)
+%     cfg = [];
+%     if cfg_main.select == 1
+%         bic = input(['Select bad ICs for ' cfg_main.subj,':']);
+%         cfg.component = comp.label(bic);
+%         
+%     else
+%         cfg.component =  report.bchan;
+%     end
+%     cfg.updatesens = 'no';
+%     cfg.trials = trials;
+%     cln_data = ft_rejectcomponent(cfg, comp, data_in);
+%     close all
+%     if cfg_main.saveflag == 1
+%         save(cfg_main.savefile, 'cln_data', '-v7.3');
+%     end
+      
+        %% Rejecting bad ICAs and prjecting back into data space
     disp('=============================')
     disp('suggested')
-    disp(report.bchan)
+    disp(report_ic.bchan)
     cfg = [];
     if cfg_main.select == 1
-        bic = input(['Select bad ICs for slected data for ' cfg_main.subj,':']);
+        bic = input(['Select bad ICs for ' cfg_main.subj,':']);
         cfg.component = comp.label(bic);
-        
     else
         cfg.component =  report.bchan;
     end
@@ -65,8 +83,15 @@ else
     cln_data = ft_rejectcomponent(cfg, comp, data_in);
     close all
     if cfg_main.saveflag == 1
-        save(savefile, 'cln_data', '-v7.3');
+        save(cfg_main.savefile, 'cln_data', '-v7.3');
+        textfile_rej = 'ica/selected_badICs';
+        badICs = cell2table(cfg.component);
+        if ~isempty(badICs)
+            badICs.Properties.VariableNames{'Var1'} = 'bICAs';
+%             writetable(badICs,textfile_rej,'Delimiter',' ');
+        end
     end
+
     
     %% back to new ft
     restoredefaultpath

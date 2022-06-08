@@ -28,3 +28,6 @@ addpath((allpath.ft_path));
 ft_defaults
 addpath(genpath(allpath.hcp_path));
 addpath(genpath(allpath.cd_org));
+   
+
+

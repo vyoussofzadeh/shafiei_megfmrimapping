@@ -20,6 +20,8 @@ cfg.lpfreq = cfg_main.lpfreq;
 % cfg.lpfreq = 30;
 cfg.channel = {'MEG'};
 % cfg.channel = {'MEGGRAD'};
+cfg.dftfreq = 50;
+cfg.dftfilter = 'yes';
 cfg.demean = 'yes';
 cfg.baselinewindow = [-0.45 0.0];
 f_data = ft_preprocessing(cfg);
@@ -27,7 +29,6 @@ f_data = ft_preprocessing(cfg);
 
 % cfg.channel = {'ECG064'};
 % ecg_data = ft_preprocessing(cfg);
-
 
 %% notch filter
 %     switch task

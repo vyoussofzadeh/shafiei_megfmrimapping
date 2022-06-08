@@ -26,36 +26,52 @@ end
 
 %%
 source_int1 = source_int;
-tmp = abs(source_int1.(cfg_main.mask));
+% tmp = abs(source_int1.(cfg_main.mask));
+tmp = (source_int1.(cfg_main.mask));
 tmp = (tmp - min(tmp(:))) ./ (max(tmp(:)) - min(tmp(:))); %
 source_int1.(cfg_main.mask) = tmp;
 
 % plot multiple 2D axial slices
 cfg = [];
 % cfg.method        = 'ortho';
-cfg.method        = 'slice';
+% cfg.method        = 'slice';
+cfg.method        = cfg_main.method;
 cfg.funparameter  = cfg_main.mask;
 cfg.maskparameter = cfg.funparameter;
 cfg.funcolorlim   = [0.1 1];
 cfg.opacitylim    = [0.1 1];
-cfg.nslices       = 12;
-cfg.slicerange    = [10,60];
-cfg.slicedim      = [3];
+cfg.nslices       = cfg_main.nslices;
+% cfg.slicerange    = [10,60];
+cfg.slicedim      = 3;
 cfg.opacitymap    = 'rampup';
 cfg.funcolormap =  brewermap(256, '*RdYlBu');
 ft_sourceplot(cfg, source_int1);
-
+colorbar off
+set(gcf,'Color','k')
 if ~isempty(cfg_main.savefile)
     pause(0.5)
 %     print([cfg_main.savefile,'_2'],'-depsc')
-    print([cfg_main.savefile,'_2'],'-dpng')  
+    print([cfg_main.savefile],'-dpng');
+%     print([cfg_main.savefile],'-dpdf');
 end
 
+%%
+% cfg = [];
+% cfg.method         = 'ortho';
+% cfg.funparameter   = cfg_main.mask;
+% % cfg.funcolorlim    = 'maxabs';
+% cfg.opacitymap     = 'rampup';
+% cfg.crosshair      = 'no';
+% cfg.camlight       = 'no';
+% % cfg.funcolormap    =  brewermap(256, '*RdYlBu');
+% cfg.funcolormap    =  brewermap(256, '*RdYlBu');
+% cfg.projthresh     = 0.8;
+% ft_sourceplot(cfg, source_int1);
 
 %%
 % A_range = [0 5];
 % % Use the T-statistics to create an alpha map (which must be in [0,1])
-% alphamap = abs(source_int.(param.mask));
+% alphamap = abs(source_int.(cfg_main.mask));
 % alphamap(alphamap > A_range(2)) = A_range(2);
 % alphamap(alphamap < A_range(1)) = 0;
 % alphamap = alphamap/A_range(2);
@@ -65,22 +81,22 @@ end
 % cfg              = [];
 % % cfg.method       = 'ortho';
 % cfg.method        = 'slice';
-% cfg.funparameter = param.mask;
-% cfg.funcolorlim   = [2 3];
-% cfg.opacitylim    = [2 3];
+% cfg.funparameter = cfg_main.mask;
+% % cfg.funcolorlim   = [2 3];
+% % cfg.opacitylim    = [2 3];
 % cfg.opacitymap    = 'rampup';
-% cfg.location     = param.loc;
+% % cfg.location     = param.loc;
 % ft_sourceplot(cfg,source_int);
+% % 
+% % H.AlphaData = alphamap;
+% % 
+% % 
+% % H = get(gca,'Children');
+% % % Adjust the alpha values of the overlay 
+% % set(H, 'AlphaData', alphamap);
 % 
-% H.AlphaData = alphamap;
 % 
 % 
-% H = get(gca,'Children');
-% % Adjust the alpha values of the overlay 
-% set(H, 'AlphaData', alphamap);
-
-
-
 % cfg               = [];
 % cfg.method        = 'ortho';
 % cfg.funcolormap   = 'jet';
@@ -89,4 +105,4 @@ end
 % cfg.funcolormap = flipud(brewermap(64,'RdBu'));
 % cfg.crosshair = 'no';
 % ft_sourceplot(cfg, source_int);
-% set(gca,'color','none')
+% % set(gca,'color','none')

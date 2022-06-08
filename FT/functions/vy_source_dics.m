@@ -1,4 +1,4 @@
-function vy_source_dics(cfg_main, ep_data)
+function s_data_dics = vy_source_dics(cfg_main, ep_data)
 
 if exist(cfg_main.savedata, 'file') == 2
     disp('source has already been computed, skipping')
@@ -12,16 +12,35 @@ end
 if ask==1
     
     Run_fft_4dics
+    
+    %% pre-whitenning paramer, kappa
+    %     indata = f_data.bsl;
+    %     [u,s,v] = svd(indata.fourierspctrm);
+    %     figure;plot(log10(diag(s)),'o');
+    %
+    %     [~,s,~] = svd(f_data.bsl.fourierspctrm);
+    %     d       = -diff(log10(diag(s)));
+    %     d       = d./std(d);
+    %     kappa_bsl   = find(d>5,1,'first');
+    %
+    %     [~,s,~] = svd(f_data.pst.fourierspctrm);
+    %     d       = -diff(log10(diag(s)));
+    %     d       = d./std(d);
+    %     kappa_pst   = find(d>5,1,'first');
+    %
+    %     kappa = min(kappa_pst,kappa_bsl);
+    
     %%
     cfg = [];
     cfg.headmodel = cfg_main.headmodel;
     % cfg.sourcemodel = cfg_main.sourcemodel;
     cfg.grid = cfg_main.grid;
     cfg.mtag = cfg_main.mtag;
+    cfg.kappa = [];
     s_data_dics = vy_source_freq(cfg, f_data);
     % s_data_dics = vy_source_freq(f_data, cfg_main.grid, cfg_main.headmodel, cfg_main.mtag);
     
-    %%
+    %% Nagative effects
     cfg = [];
     cfg.parameter = 'pow';
     cfg.operation = '(x1-x2)/(x1+x2)';
@@ -29,40 +48,114 @@ if ask==1
     source_diff_dics.pos     = cfg_main.template_grid.pos;
     source_diff_dics.dim     = cfg_main.template_grid.dim;
     source_diff_dics.inside  = cfg_main.template_grid.inside;
-    source_diff_dics.pow(source_diff_dics.pow>0)=0;
+    source_diff_dics.pow(isnan(source_diff_dics.pow))=0;
+    
+    
+    
+    
+    
+    %% Positive effects
+    %     cfg = [];
+    %     cfg.parameter = 'pow';
+    %     cfg.operation = '(x2-x1)/(x1+x2)';
+    %     source_diff_dics = ft_math(cfg,s_data_dics.pst,s_data_dics.bsl);
+    %     source_diff_dics.pos     = cfg_main.template_grid.pos;
+    %     source_diff_dics.dim     = cfg_main.template_grid.dim;
+    %     source_diff_dics.inside  = cfg_main.template_grid.inside;
+    %     source_diff_dics.pow(source_diff_dics.pow<0)=0;
     
     %%
     % outputdir_dics = fullfile(outputdir,'dics');
     % if exist(outputdir_dics, 'file') == 0, mkdir(outputdir_dics), end
     toi = cfg_main.toi;
-    save([cfg_main.savedata,'_',num2str(f),'Hz.mat'], 'source_diff_dics', 'f','toi','-v7.3');
-    
-    savefig = fullfile(outputdir_dics,[num2str(f-tapsmofrq),'_',num2str(f+tapsmofrq),'Hz','_1_',cfg_main.subj]);    
-    if size(toi,1) == 1
-        savefig = fullfile(outputdir_dics,[num2str(toi(1)),'_',num2str(toi(2)),'sec_',num2str(f-tapsmofrq),'_',num2str(f+tapsmofrq),'Hz','_1_',cfg_main.subj]);
+    if ~isempty(cfg_main.flag.savetag)
+        save([cfg_main.savedata,'_',cfg_main.flag.savetag '_', num2str(f),'Hz.mat'], 'source_diff_dics', 'f','toi','-v7.3');
+    else
+        save([cfg_main.savedata,'_',num2str(f),'Hz.mat'], 'source_diff_dics', 'f','toi','-v7.3');
     end
     
-    cfg = [];
-    cfg.mask = 'pow';
-    cfg.loc = 'min';
-    cfg.template = cfg_main.template_mri;
-    cfg.savefile = savefig;
-    cfg.volnorm     = 2; % yes: 1
-    source_int_dics = vy_source_plot(cfg, source_diff_dics);
-    set(gcf,'name',cfg_main.subj,'numbertitle','off')
+    %     savefig = fullfile(outputdir_dics,[num2str(f-tapsmofrq),'_',num2str(f+tapsmofrq),'Hz','_1_',cfg_main.subj]);
+    if size(toi,1) == 1
+        savefig = fullfile(outputdir_dics,[num2str(toi(1)),'_',num2str(toi(2)),'sec_',num2str(f-tapsmofrq),'_',num2str(f+tapsmofrq),'Hz','_1_',cfg_main.subj]);
+    else
+        if ~isempty(cfg_main.flag.savetag)
+            savefig = fullfile(outputdir_dics,[num2str(toi(2,1)),'_',num2str(toi(2,2)),'sec_',num2str(f-tapsmofrq),'_',num2str(f+tapsmofrq),'Hz_',cfg_main.flag.savetag,'_1_',cfg_main.subj]);
+        else
+            savefig = fullfile(outputdir_dics,[num2str(toi(2,1)),'_',num2str(toi(2,2)),'sec_',num2str(f-tapsmofrq),'_',num2str(f+tapsmofrq),'Hz','_1_',cfg_main.subj]);
+        end
+    end
     
+    %% both effects
+%     source_diff_dics_pos = source_diff_dics;
+%     source_diff_dics_pos.pow(source_diff_dics_pos.pow<0)=0;
+%     
+%     source_diff_dics_neg = source_diff_dics;
+%     source_diff_dics_neg.pow(source_diff_dics_neg.pow>0)=0;
     
-    clear savepath
-    savepath{1} = fullfile(outputdir_dics,[num2str(f),'Hz','_2_',cfg_main.subj]);
-    savepath{2} = fullfile(outputdir_dics,[num2str(f),'Hz','_3_',cfg_main.subj]);
     
 %     cfg = [];
-%     cfg.subj = cfg_main.subj;
 %     cfg.mask = 'pow';
-%     cfg.thre = 0.6;
-%     cfg.savepath = savepath;
-%     vy_mapvisualisation(cfg, source_int_dics);
-    % vy_mapvisualisation(source_int_dics,cfg.mask,0.6, []);
+%     cfg.loc = 'min';
+%     cfg.template = cfg_main.template_mri;
+%     cfg.savefile = savefig;
+%     cfg.volnorm     = 2; % yes: 1
+%     cfg.method        = 'ortho';
+%     vy_source_plot(cfg, source_diff_dics_pos);
+%     set(gcf,'name',[cfg_main.subj,'_pos'],'numbertitle','off')
+%     vy_source_plot(cfg, source_diff_dics_neg);
+%     set(gcf,'name',[cfg_main.subj,'_neg'],'numbertitle','off')
+%     
+%     disp('1:Postive')
+%     disp('2:Negative ')
+%     %     disp('3:Both ')
+% %     effask = input('effects:');
+%     effask = 2;
+%     switch effask
+%         case 1
+%             source_diff_dics.pow(source_diff_dics.pow<0)=0;
+%         case 2
+%             source_diff_dics.pow(source_diff_dics.pow>0)=0;
+%     end
+%     close all,
+    
+    if cfg_main.plotting ==1
+        cfg = [];
+        cfg.mask = 'pow';
+        cfg.loc = 'min';
+        cfg.template = cfg_main.template_mri;
+        cfg.savefile = savefig;
+        cfg.volnorm     = 2; % yes: 1
+        cfg.method        = 'ortho';
+        cfg.nslices = 16;
+        source_int_dics = vy_source_plot(cfg, source_diff_dics);
+        set(gcf,'name',cfg_main.subj,'numbertitle','off')
+        
+        clear savepath
+        savepath{1} = fullfile(outputdir_dics,[num2str(f),'Hz','_2_',cfg_main.subj]);
+        savepath{2} = fullfile(outputdir_dics,[num2str(f),'Hz','_3_',cfg_main.subj]);
+        
+        if ~isempty(cfg_main.flag.savetag)
+            savepath{1} = fullfile(outputdir_dics,[num2str(f),'Hz_',cfg_main.flag.savetag,'_2_',cfg_main.subj]);
+            savepath{2} = fullfile(outputdir_dics,[num2str(f),'Hz_',cfg_main.flag.savetag,'_3_',cfg_main.subj]);
+        end
+        
+        disp('1: Yes')
+        disp('2: No');
+%         surask = 2;
+        surask = input('Surface map:');
+        switch surask
+            case 1
+                cfg = [];
+                cfg.subj = cfg_main.subj;
+                cfg.mask = 'pow';
+                cfg.thre = 0.6;
+                cfg.savepath = savepath;
+                cfg.colorbar = 2;
+                cfg.saveflag = 2;
+                vy_mapvisualisation(cfg, source_int_dics);
+                % vy_mapvisualisation(source_int_dics,cfg.mask,0.6, []);
+        end
+    end
     
 else
     disp('source estimatetion was not estimated!')
@@ -119,7 +212,7 @@ end
 %
 % % ROI summary
 % [ROI, ROI_sel] = vy_ROI_report(data_intpar,.7, coor, 'pow');
-% disp(ROI_sel)
+% % disp(ROI_sel)
 % savepath = fullfile(outputdir_dics,[mtd,'_par_roi',subj,'_',run]);
 % hcp_write_figure([savepath,'.png'], gcf, 'resolution', 300);
 

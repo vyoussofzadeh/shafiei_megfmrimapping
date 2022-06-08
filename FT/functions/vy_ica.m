@@ -31,9 +31,10 @@ set(gcf, 'Position', [600   600   700   500]);
 % title(cfg_main.subj)
 set(gcf,'name',cfg_main.subj,'numbertitle','off')
 
-if cfg_main.savefig == 1
-    print('ica/ica1','-depsc');
-end
+% if cfg_main.savefig == 1
+% %     print('ica/ica1','-depsc');
+%     print('ica/ica1','-dpng');
+% end
 
 %%
 cfg              = [];
@@ -67,9 +68,10 @@ set(gcf, 'Position', [800   600   800   500]);
 % title(cfg_main.subj)
 set(gcf,'name',cfg_main.subj,'numbertitle','off')
 
-if cfg_main.savefig == 1
-    print('ica/ica2','-depsc');
-end
+% if cfg_main.savefig == 1
+% %     print('ica/ica2','-depsc');
+%     print('ica/ica2','-dpng');
+% end
 
 %%
 

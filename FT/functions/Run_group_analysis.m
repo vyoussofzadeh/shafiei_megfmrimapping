@@ -1,26 +1,28 @@
 
 %%
-clear pow names data_dis k
-pow = [];
-k = 1;
-for i=1:length(files_sel)
-    load(files_sel{i});
-    datafile = files_sel{i}; % spm_select(inf,'dir','Select MEG folder'); % e.g. H:\VNS\MEG\C-105\CRM\1
-    Index = strfind(datafile, '/');
-    Date = datafile(Index(5)+1:Index(6)-1);
-    Subj  = datafile(Index(6)+1:Index(7)-1);
-    pow(i,:) = source_diff_dics.pow;
-    disp(datafile)
-    disp(['subj:',Subj])
-    disp(['Date:',Date])
-    disp([num2str(i),'/', num2str(length(files_sel))])
-    disp('============');
-    names{i} = [num2str(i),'-',Subj,'-',Date];
-    Sub_all{i} = Subj;
+savefile = [tsk,'_pow.mat'];
+if exist(savefile, 'file') == 2
+    load(savefile)
+else
+    clear pow names data_dis k
+    pow = []; k = 1;
+    for i=1:length(files_sel)
+       load(files_sel{i});
+        datafile = files_sel{i}; % spm_select(inf,'dir','Select MEG folder'); % e.g. H:\VNS\MEG\C-105\CRM\1
+        Index = strfind(datafile, '/');
+        Date = datafile(Index(5)+1:Index(6)-1);
+        Subj  = datafile(Index(6)+1:Index(7)-1);
+        pow(i,:) = source_diff_dics.pow;
+        disp(datafile)
+        disp(['subj:',Subj])
+        disp(['Date:',Date])
+        disp([num2str(i),'/', num2str(length(files_sel))])
+        disp('============');
+        names{i} = [num2str(i),'-',Subj,'-',Date];
+        Sub_all{i} = Subj;
+    end
+    save([tsk,'_pow.mat'],'pow', 'names','Sub_all','source_diff_dics','-v7.3');
 end
-%-
-save([tsk,'_pow.mat'],'pow', 'names','Sub_all','-v7.3');
-load([tsk,'_pow.mat'])
 
 %%
 clear b
@@ -29,7 +31,7 @@ for i=1:length(names)
 end
 disp(table([b',names']))
 
-%% outliers
+%% Outliers
 %         [ri, idx] = vy_outlier(evc);
 [ri, idx] = vy_outlier_baseline(pow,1);
 lout = round(length(idx)/4); % 1/5 of the outliers are thrown
@@ -43,6 +45,7 @@ disp(Good_ID');
 disp(idx(end:-1:end-lout)');
 pow_sel = pow(idx(lout+1:end),:);
 % pow_sel = pow;
+
 %%
 idx1 = idx(lout+1:end);
 clear data_dis_sel names_sel
@@ -67,77 +70,30 @@ end
 template_mri = ft_read_mri(fullfile(allpath.ft_path,'template/anatomy','single_subj_T1.nii')); %
 msk = 'pow';
 
-%%
-if exist(fullfile(outputdir,tsk), 'file') == 0
-    mkdir(fullfile(outputdir,tsk));   %create the directory
-end
-
-%% Individuals
-D = source_diff_dics;
-for i=1:size(pow,1)
-    D.(msk) = pow(i,:)';
-    cfg = [];
-    cfg.mask = 'pow';
-    cfg.loc = 'min';
-    cfg.template = template_mri;
-    cfg.savefile = [];
-    cfg.volnorm     = 2; % yes: 1
-    vy_source_plot(cfg, D);
-    set(gcf,'Name',names{i}) %select the name you want
-%     print(['./', tsk,'/',names{i}],'-depsc');
-    print(['./', tsk,'/',names{i}],'-dpng');
-    disp([num2str(i),'/', num2str(size(pow,1))])
-    disp(names{i})
-    pause(2)
-    close all
-end
-
 %% G-average
 evc_n = [];
 D = source_diff_dics;
-evcn = squeeze(mean(pow_sel,1)); % zero-mean, divide by std, average
-% evcn = vy_normalize(pow);
-
-D.(msk) = evcn';
-
-cfg = [];
-cfg.mask = 'pow';
-cfg.loc = 'min';
-cfg.template = template_mri;
-cfg.savefile = [];
-cfg.volnorm     = 2; % yes: 1
-dics_pow = vy_source_plot(cfg, D);
+mpow = squeeze(mean(atanh(pow_sel),1)); % fisher-score transformation
+% mpow = vy_normalize(pow_sel);
+D.(msk) = mpow';
 
 %%
-savepath = fullfile(outputdir,'groupave.mat');
-cd(outputdir)
-save(savepath, 'D','pow', '-v7.3');
-
-%% Source vis - quick inspection
-% cfg              = [];
-% cfg.method       = 'ortho';
-% cfg.funparameter = msk;
-% % figure
-% ft_sourceplot(cfg,D);
-% hcp_write_figure([savepath,'.png'], gcf, 'resolution', 300);
-
-% cfg = [];
-% cfg.subj = 'group';
-% cfg.mask = 'pow';
-% cfg.thre = 0.6;
-% cfg.savepath = savepath;
-% vy_mapvisualisation(cfg, D);
-% vy_mapvisualisation(D,msk,0.7, []);
-
 savefig = fullfile(outputdir,[tsk,'_dics_group_1']);
 cfg = [];
 cfg.mask = 'pow';
 % cfg.loc = 'min';
 cfg.template = template_mri;
 cfg.savefile = savefig;
+cfg.method   = 'ortho';
+cfg.nslices = 16;
 cfg.volnorm     = 2; % yes: 1
 D1 = vy_source_plot(cfg, D);
 set(gcf,'name','group','numbertitle','off')
+
+%%
+savepath = fullfile(outputdir,'groupave.mat');
+cd(outputdir)
+save(savepath, 'D','pow', '-v7.3');
 
 %%
 clear savepath
@@ -147,28 +103,12 @@ savepath{2} = fullfile(outputdir,[tsk,'dics_group_3']);
 cfg = [];
 cfg.subj = 'group';
 cfg.mask = 'pow';
-cfg.thre = 0.8;
+cfg.thre = 0.6;
 cfg.savepath = savepath;
 vy_mapvisualisation(cfg, D1);
 
-%%
-% D.eigenvector_cent(D.eigenvector_cent < 0.7.*max(D.eigenvector_cent)) = NaN; % negative effects
-% D.eigenvector_centdimord = 'chan';
-
-%% Source vis - template, quick and dirty visualisation
-% D.eigenvector_cent = 100.*D.eigenvector_cent;
-% gtm = 'eigenvector_cent';
-% clear savepath
-% 
-% savepath{1} = fullfile(outputdir,'n_par1_t_2_wb');
-% savepath{2} = fullfile(outputdir,'n_par2_t_3_wb');
+%% save group average as nii
 savenii = fullfile(outputdir,[tsk,'_groupave.nii']);
-% 
-% param = [];
-% param.mask = 'eigenvector_cent';
-% param.loc = 'max';
-% D1 = vy_source_plot(D,template_mri,param,2);
-% vy_mapvisualisation(D1,'eigenvector_cent',0.6, savepath);
 vy_savenifti(D1,msk,savenii);
 
 %% more detailled visualisation
@@ -201,16 +141,43 @@ vy_savenifti(D_par, msk, savenii);
 % textfile_rej = fullfile(outputdir,'ROI_sel_wb_par');
 % writetable(ROI_sel,textfile_rej,'Delimiter',' ');
 
+%% Individuals
+if exist(fullfile(outputdir,'indiv'), 'file') == 0, mkdir(fullfile(outputdir,'indiv')); end
+D = source_diff_dics;
+for i=1:size(pow,1)
+    D.(msk) = pow(i,:)';
+    cfg = [];
+    cfg.mask = 'pow';
+    cfg.loc = 'min';
+    cfg.template = template_mri;
+    cfg.savefile = [];
+    cfg.volnorm     = 2; % yes: 1
+    vy_source_plot(cfg, D);
+    set(gcf,'Name',names{i}) %select the name you want
+%     print(['./', tsk,'/',names{i}],'-depsc');
+    print(['./indiv/',names{i}],'-dpng');
+    disp([num2str(i),'/', num2str(size(pow,1))])
+    disp(names{i})
+    pause(2)
+    close all
+end
+
 %% Parcellation - Individuals
+disp(names')
 clear par_meg_indv
-outputinddir = fullfile(outputdir,tsk);
+outputinddir = fullfile(outputdir,'indiv');
 if exist(outputinddir, 'file') == 0
     mkdir(outputinddir);   %create the directory
 end
 
 clear savenii
-for k=1:size(pow,1)
+% for k=[61,71,72,77,83,88,89,91,]%1:size(pow,1) % DFN
+% for k=[2,5,8,9,10,15,16,17,20,26,27,28,32,33,35,36]%1:size(pow,1) % PN
+% for k=1:size(pow,1) % PN
+for k=1:size(pow,1) % PN
+
     
+    disp(num2str(k))
     Index = strfind(files_sel{k}, '/');
     d = names{k};
     D.pow = pow(k,:)';
@@ -231,22 +198,44 @@ for k=1:size(pow,1)
     par_indv(k,:) = par_meg.anatomy;
     
 end
-save(['./',tsk, '/par_meg'],'par_indv','par_meg','names','coor')
-load(['./',tsk, '/par_meg'])
-
+save('./par_meg','par_indv','par_meg','names','coor','savenii1')
+load('./par_meg')
 % load('par_meg');
 
+%% surface mapping, individuals
+addpath(allpath.connpath);
+cd indiv/
+projthresh = 0.60;
+for i=1:length(savenii1)
+    
+    nii_vol = ft_read_mri(savenii1{i});
+    vol_thre = vy_vol_thresh(nii_vol, projthresh, 'anatomy'); % abs    
+    
+    Opt = [];
+    Opt.savenii = 1; Opt.savefig = 1;
+    Opt.savename = ['thre_',names{i}];
+    Opt.view = '-row';
+    vy_surfce_vis2(vol_thre,[Opt.savename,'.nii'], Opt);
+    
+    close all
+end
+cd ..
+
+%%
 %-parcellation check
 addpath(allpath.spm_path);
-par_meg.anatomy = mean(par_indv,1)';
+% par_meg.anatomy = mean(par_indv,1)';
+par_meg.anatomy = par_indv(16,:)';
 vy_parcellate_plot(par_meg, coor, 'net');
 
 %%
+% par_indv1 =  par_indv;
+% par_indv1(par_indv1>0)=0;
 data = [];
 data.value = par_indv;
 data.label = par_meg.label;
 LI_meg = vy_laterality(data);
-print(['Lat_',tsk],'-dpng')
+% print(['Lat_',tsk],'-dpng')
 
 %% LI, all subjects, 
 subj_meg = names_sel;

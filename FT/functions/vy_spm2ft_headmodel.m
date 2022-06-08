@@ -8,8 +8,8 @@ datareg = D.inv{1}.datareg;
 mesh = spm_eeg_inv_transform_mesh(datareg.fromMNI*D.inv{1}.mesh.Affine, D.inv{1}.mesh);
 allmeshvert_mni = D.inv{1}.mesh.tess_mni.vert;
 
-hsfile = fullfile(datafolder1,'hs_file'); % headshape
-headshape = ft_read_headshape(hsfile);
+% hsfile = fullfile(datafolder1,'hs_file'); % headshape
+headshape = ft_read_headshape(datafile);
 headshape = ft_convert_units(headshape, 'mm');
 
 % create the source model
@@ -32,7 +32,7 @@ cfg.senstype    = 'MEG';
 cfg.grid        = sourcemodel;
 cfg.headmodel   = hdm;
 cfg.channel     = {'MEG'};
-lf              = ft_prepare_leadfield(cfg, t_data.app);
+lf              = ft_prepare_leadfield(cfg, ep_data.app);
 
 individual_grid = lf;
 individual_headmodel = hdm;

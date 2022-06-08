@@ -1,5 +1,5 @@
 % function vy_mri_inspection(t_data, individual_headmodel,individual_grid,headshape, mri_realigned,outputmridir, saveflag)
-function vy_mri_inspection(cfg, t_data)
+function vy_mri_inspection(cfg, ~)
 
 
 switch cfg.mtd
@@ -11,7 +11,7 @@ switch cfg.mtd
         ft_plot_headshape(cfg.headshape);
         ft_plot_mesh(cfg.leadfield.pos(cfg.leadfield.inside, :));
         view ([0 90])
-        if isempty(cfg.saveflag)~=2
+        if ~isempty(cfg.saveflag)
             savepath = fullfile(cfg.outputmridir,'headshape');
             hcp_write_figure([savepath,'.png'], gcf, 'resolution', 300);
         end

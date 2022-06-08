@@ -1,8 +1,14 @@
+
+cd(outputdir)
+
+%%
 addpath(allpath.connpath);
 addpath(allpath.spm_path);
 
 %%
 group_source = ft_read_mri([tsk,'_groupave.nii']);
+
+% group_source = ft_read_mri('DFN_group_par.nii')
 
 % Opt = [];
 % Opt.savenii = 0; Opt.savefig = 0;

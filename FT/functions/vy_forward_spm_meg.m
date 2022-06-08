@@ -91,7 +91,6 @@ D.save
 
 % end
 
-
 %% source task
 % inv_typ = 'GS';% 'GS'; %'COH';   % (MSP)%inv_typ = 'IID';    % Minimum Norm Least-Squares
 inv_typ = 'COH'; % Loreta

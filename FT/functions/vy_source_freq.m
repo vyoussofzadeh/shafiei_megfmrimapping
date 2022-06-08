@@ -28,64 +28,143 @@ switch mtag
         cfg.headmodel = cfg_main.headmodel;
         cfg.dics.keepfilter = 'yes';
         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
+%         cfg.kappa = cfg_main.kappa;
         sourceavg = ft_sourceanalysis(cfg, data.app);
         
         cfg = [];
         cfg.method = 'dics';
-%         cfg.dics.lambda = '5%';
+        %         cfg.dics.lambda = '5%';
         cfg.grid = cfg_main.grid;
         cfg.grid.filter = sourceavg.avg.filter;
         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
         cfg.headmodel = cfg_main.headmodel;
+%         cfg.kappa = cfg_main.kappa;
         s_data.bsl      = ft_sourceanalysis(cfg, data.bsl);
         s_data.pst      = ft_sourceanalysis(cfg, data.pst);
         
-%         cfg = [];
-%         cfg.method = 'dics';
-%         cfg.dics.lambda = '5%';
-%         cfg.frequency    = data.app.freq;
-%         cfg.grid = cfg_main.grid;
-%         cfg.headmodel = cfg_main.headmodel;
-%         cfg.dics.keepfilter = 'yes';
-%         cfg.dics.realfilter   = 'yes';
-%         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
-%         sourceavg = ft_sourceanalysis(cfg, data.app);
-%         
-%         cfg = [];
-%         cfg.method = 'dics';
-%         cfg.dics.lambda = '5%';
-%         cfg.grid = cfg_main.grid;
-%         cfg.grid.filter = sourceavg.avg.filter;
-%         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
-%         cfg.headmodel = cfg_main.headmodel;
-%         s_data.bsl      = ft_sourceanalysis(cfg, data.bsl);
-%         s_data.pst      = ft_sourceanalysis(cfg, data.pst);
-%         
+        %         cfg = [];
+        %         cfg.method = 'dics';
+        %         cfg.dics.lambda = '5%';
+        %         cfg.frequency    = data.app.freq;
+        %         cfg.grid = cfg_main.grid;
+        %         cfg.headmodel = cfg_main.headmodel;
+        %         cfg.dics.keepfilter = 'yes';
+        %         cfg.dics.realfilter   = 'yes';
+        %         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
+        %         sourceavg = ft_sourceanalysis(cfg, data.app);
+        %
+        %         cfg = [];
+        %         cfg.method = 'dics';
+        %         cfg.dics.lambda = '5%';
+        %         cfg.grid = cfg_main.grid;
+        %         cfg.grid.filter = sourceavg.avg.filter;
+        %         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
+        %         cfg.headmodel = cfg_main.headmodel;
+        %         s_data.bsl      = ft_sourceanalysis(cfg, data.bsl);
+        %         s_data.pst      = ft_sourceanalysis(cfg, data.pst);
+        %
         
     case 'dics_fs'
         
+        %         cfg = [];
+        %         cfg.method = 'dics';
+        %         cfg.dics.lambda = '100%';
+        %         %         cfg.frequency    = data.app.freq;
+        %         cfg.sourcemodel              = cfg_main.sourcemodel;
+        %         %         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
+        %         cfg.headmodel         = cfg_main.headmodel;
+        %         cfg.dics.keepfilter   = 'yes';
+        %         cfg.dics.fixedori     = 'yes'; % project on axis of most variance using SVD
+        %         sourceavg = ft_sourceanalysis(cfg, data.app);
+        %         %         sourceavg = ft_sourceanalysis(cfg, ft_checkdata(data.app,'cmbrepresentation','fullfast')); % trick to speed up the computation
+        %
+        %         cfg = [];
+        %         cfg.method = 'dics';
+        %         %         cfg.dics.lambda = '0%';
+        %         %         cfg.leadfield             = cfg_main.leadfield;
+        %         cfg.sourcemodel              = cfg_main.sourcemodel;
+        %         %         cfg.grid              = cfg_main.sourcemodel;
+        %         %         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
+        %         cfg.headmodel        = cfg_main.headmodel;
+        %         cfg.grid.filter = sourceavg.avg.filter;
+        %         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
+        %         s_data.bsl           = ft_sourceanalysis(cfg, data.bsl);
+        %         s_data.pst           = ft_sourceanalysis(cfg, data.pst);
+        %
+        %         cfg = [];
+        %         cfg.method = 'dics';
+        %         cfg.dics.lambda = '100%';
+        % %         cfg.frequency    = data.app.freq;
+        %         cfg.sourcemodel              = cfg_main.sourcemodel;
+        % %         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
+        %         cfg.headmodel         = cfg_main.headmodel;
+        %         cfg.dics.keepfilter   = 'yes';
+        %         cfg.dics.fixedori     = 'yes'; % project on axis of most variance using SVD
+        %         sourceavg = ft_sourceanalysis(cfg, data.app);
+        % %         sourceavg = ft_sourceanalysis(cfg, ft_checkdata(data.app,'cmbrepresentation','fullfast')); % trick to speed up the computation
+        %
+        %         cfg = [];
+        %         cfg.method = 'dics';
+        % %         cfg.dics.lambda = '0%';
+        %         cfg.grid             = cfg_main.grid;
+        % %         cfg.sourcemodel              = cfg_main.grid;
+        % %         cfg.grid              = cfg_main.sourcemodel;
+        % %         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
+        %         cfg.headmodel        = cfg_main.headmodel;
+        %         cfg.grid.filter = sourceavg.avg.filter;
+        %         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
+        %         s_data.bsl           = ft_sourceanalysis(cfg, data.bsl);
+        %         s_data.pst           = ft_sourceanalysis(cfg, data.pst);
+        
+        
+        %         cfg = [];
+        %         cfg.method = 'dics';
+        %         cfg.dics.lambda = '10%';
+        %         %         cfg.frequency    = data.app.freq;
+        %         cfg.grid              = cfg_main.grid;
+        %         %         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
+        %         cfg.headmodel         = cfg_main.headmodel;
+        %         cfg.dics.keepfilter   = 'yes';
+        %         cfg.dics.fixedori     = 'yes'; % project on axis of most variance using SVD
+        %         sourceavg = ft_sourceanalysis(cfg, data.app);
+        %         %         sourceavg = ft_sourceanalysis(cfg, ft_checkdata(data.app,'cmbrepresentation','fullfast')); % trick to speed up the computation
+        %
+        %         cfg = [];
+        %         cfg.method = 'dics';
+        %         cfg.dics.lambda = '5%';
+        %         cfg.grid             = cfg_main.grid;
+        %         %         cfg.sourcemodel              = cfg_main.grid;
+        %         %         cfg.grid              = cfg_main.sourcemodel;
+        %         %         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
+        %         cfg.headmodel        = cfg_main.headmodel;
+        %         cfg.grid.filter = sourceavg.avg.filter;
+        %         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
+        %         s_data.bsl           = ft_sourceanalysis(cfg, data.bsl);
+        %         s_data.pst           = ft_sourceanalysis(cfg, data.pst);
+        
         cfg = [];
         cfg.method = 'dics';
-        cfg.dics.lambda = '5%';
-        cfg.frequency    = data.app.freq;
-        cfg.grid              = cfg_main.sourcemodel;
-%         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
+        cfg.dics.lambda = '100%';
+        %         cfg.frequency    = data.app.freq;
+        cfg.grid              = cfg_main.grid;
+        %         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
         cfg.headmodel         = cfg_main.headmodel;
         cfg.dics.keepfilter = 'yes';
         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
         sourceavg = ft_sourceanalysis(cfg, data.app);
-        sourceavg = ft_sourceanalysis(cfg, ft_checkdata(data.app,'cmbrepresentation','fullfast')); % trick to speed up the computation
+        %         sourceavg = ft_sourceanalysis(cfg, ft_checkdata(data.app,'cmbrepresentation','fullfast')); % trick to speed up the computation
         
         cfg = [];
         cfg.method = 'dics';
-        cfg.dics.lambda = '5%';
-        cfg.grid              = cfg_main.sourcemodel;
-%         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
+%         cfg.dics.lambda = '%';
+        cfg.grid       = cfg_main.grid;
+        %         cfg.grid.leadfield    = cfg_main.leadfield.leadfield;
         cfg.headmodel         = cfg_main.headmodel;
         cfg.grid.filter = sourceavg.avg.filter;
         cfg.dics.fixedori    = 'yes'; % project on axis of most variance using SVD
         s_data.bsl      = ft_sourceanalysis(cfg, data.bsl);
         s_data.pst      = ft_sourceanalysis(cfg, data.pst);
+        
         
     case 'dics_stat'
         

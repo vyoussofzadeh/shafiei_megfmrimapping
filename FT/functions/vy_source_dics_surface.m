@@ -5,6 +5,8 @@ cfg.savefile = [];
 cfg.saveflag = 2;
 cfg.foilim = [2 40];
 cfg.plotflag  = 2;
+cfg.tapsmofrq       = 1;
+cfg.taper    = 'hanning';
 f_data.bsl = vy_fft(cfg, ep_data.bsl); f_data.bsl.elec = cfg_main.sens;
 f_data.pst = vy_fft(cfg, ep_data.pst); f_data.pst.elec = cfg_main.sens;
 
@@ -36,16 +38,24 @@ if exist(outputdir_dics, 'file') == 0, mkdir(outputdir_dics), end
 [a,b] = min(psd_pst - psd_bsl);
 % f = ff(b); f = round(f);
 
-f = input('FOI? ');
+f = input('FOI? '); tapsmofrq = 3;
 % f = 20;
-cfg = [];
-cfg.savefile = [];
-cfg.saveflag = 2;
-cfg.foilim = [f f];
-cfg.plotflag  = 2;
-f_data.app = vy_fft(cfg, ep_data.app); f_data.app.elec = cfg_main.sens;
+% cfg = [];
+% cfg.savefile = [];
+% cfg.saveflag = 2;
+% cfg.foilim = [f f];
+% cfg.plotflag  = 2;
+% f_data.app = vy_fft(cfg, ep_data.app); f_data.app.elec = cfg_main.sens;
+% f_data.bsl = vy_fft(cfg, ep_data.bsl); f_data.bsl.elec = cfg_main.sens;
+% f_data.pst = vy_fft(cfg, ep_data.pst); f_data.pst.elec = cfg_main.sens;
+
+
+cfg.taper    = 'dpss'; cfg.tapsmofrq  = tapsmofrq;
+if f < 4, cfg.tapsmofrq  = 1; cfg.taper    = 'hanning'; end
+[f_data.app,~,~,tapsmofrq] = vy_fft(cfg, ep_data.app); f_data.app.elec = cfg_main.sens;
 f_data.bsl = vy_fft(cfg, ep_data.bsl); f_data.bsl.elec = cfg_main.sens;
 f_data.pst = vy_fft(cfg, ep_data.pst); f_data.pst.elec = cfg_main.sens;
+
 
 % f = 20;
 % % Freq of interest - prepration for DICS source analysis
@@ -53,7 +63,17 @@ f_data.pst = vy_fft(cfg, ep_data.pst); f_data.pst.elec = cfg_main.sens;
 % f_data.bsl = vy_fft(ep_data.bsl, [f,f], 0,[],0); f_data.bsl.elec = sens;
 % f_data.pst = vy_fft(ep_data.pst, [f,f], 0,[],0); f_data.pst.elec = sens;
 %%
-[s_data_dics, ~] = vy_source_freq(f_data, cfg_main.grid, cfg_main.headmodel, 'dics');
+% [s_data_dics, ~] = vy_source_freq(f_data, cfg_main.grid, cfg_main.headmodel, 'dics');
+
+
+%%
+cfg = [];
+cfg.headmodel = cfg_main.headmodel;
+cfg.sourcemodel = cfg_main.sourcmodel;
+cfg.grid = cfg_main.grid;
+cfg.mtag = 'dics_fs';
+s_data_dics = vy_source_freq(cfg, f_data);
+
 
 %%
 cfg = [];

@@ -1,4 +1,4 @@
-function [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm] = vy_mri_neuromag2(cfg_main)
+function [mri_realigned,individual_headmodel,headshape, individual_grid_8mm, individual_grid_10mm] = vy_mri_neuromag3(cfg_main)
 
 if exist(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']), 'file') == 2
     load(fullfile(cfg_main.outputmridir,['anat_',cfg_main.subj,'.mat']));
@@ -11,6 +11,13 @@ else
         individual_mri = ft_read_mri(cfg_main.mripfile);
         %     ft_sourceplot([], individual_mri);
         individual_mri = ft_convert_units(individual_mri, 'mm');
+        
+        %% Reslice & save the transformation matrix to the anatomy_dir
+        cfg                 = [];
+        cfg.resolution      = 1;
+        cfg.dim             = [256 256 256];
+        individual_mri        = ft_volumereslice(cfg, individual_mri);
+        ft_sourceplot([], individual_mri);
         
         %%
         fid = cfg_main.fid;
@@ -32,58 +39,65 @@ else
         
         %%
         % coregister to subject headspace
-        fprintf('Please identify the LPA, RPA, nasion, and a point on the positive Z-axis\n');
-        cfg             = [];
-        cfg.interactive = 'yes';
-        cfg.coordsys    = 'neuromag';
-        mri_realigned             = ft_volumerealign(cfg, individual_mri);
-                
+        %         fprintf('Please identify the LPA, RPA, nasion, and a point on the positive Z-axis\n');
+        %         cfg             = [];
+        %         cfg.interactive = 'yes';
+        %         cfg.coordsys    = 'neuromag';
+        %         mri_realigned             = ft_volumerealign(cfg, individual_mri);
+        %
+        %
+        %         %%
+        %         % use the ft_volumereslice function to be able to plot the MRI with the top of the head upwards
+        %         cfg              = [];
+        %         cfg.dim          = [256 256 256];                 % original dimension
+        %         mri_realigned1              = ft_volumereslice(cfg,mri_realigned);
+        
         %%
-%         cfg          = [];
-%         % cfg.method   = 'interactive';
-%         cfg.method = 'fiducial'; % the following voxel coords were determined interactive
-%         cfg.coordsys = 'neuromag';
-%         cfg.fiducial.ac   = fid.NCS.AC;
-%         cfg.fiducial.pc   = fid.NCS.PC;
-%         cfg.fiducial.xzpoint  = fid.NCS.IH;
-%         cfg.fiducial.right   = fid.SCS.RPA;
-%         mri_realigned     = ft_volumerealign(cfg, individual_mri);
-%         
-%         %%
-%         cfg = [];
-%         cfg.method = 'fiducial';
-%         cfg.coordsys = 'neuromag';
-%         cfg.fiducial.nas   = fid.SCS.NAS;
-%         cfg.fiducial.lpa   = fid.SCS.LPA;
-%         cfg.fiducial.rpa   = fid.SCS.RPA;
-%         cfg.spmversion     = 'spm12';
-%         mri_realigned = ft_volumerealign(cfg, mri_realigned);
-%         %%
-%         
-%         %%
-%         %         ft_sourceplot([], mri_realigned); hold on
-%         %         plot3(fid.SCS.NAS(1,1), fid.SCS.NAS(1,2), fid.SCS.NAS(1,3), 'm*');
-%         %         plot3(fid.SCS.LPA(1,1), fid.SCS.LPA(1,2), fid.SCS.LPA(1,3), 'm*');
-%         %         plot3(fid.SCS.RPA(1,1), fid.SCS.RPA(1,2), fid.SCS.RPA(1,3), 'm*');
-%         
-%         %%
-%         headshape = ft_read_headshape(cfg_main.hsfile);
-%         headshape = ft_convert_units(headshape, 'mm');
-%         
-%         %%
-%         cfg = [];
-%         cfg.method = 'headshape';
-%         cfg.headshape.interactive = 'no';
-%         cfg.headshape.icp = 'yes';
-%         cfg.headshape.headshape = headshape;
-%         cfg.coordsys = 'neuromag';
-%         cfg.spmversion     = 'spm12';
-%         mri_realigned = ft_volumerealign(cfg, mri_realigned);
-%         
-%         %% == to check everything went right with co-reg!
-%         ft_determine_coordsys(mri_realigned, 'interactive', 'no')
-%         ft_plot_headshape(headshape);
-%         view([-90, 0]),
+        %         cfg          = [];
+        %         % cfg.method   = 'interactive';
+        %         cfg.method = 'fiducial'; % the following voxel coords were determined interactive
+        %         cfg.coordsys = 'neuromag';
+        %         cfg.fiducial.ac   = fid.NCS.AC;
+        %         cfg.fiducial.pc   = fid.NCS.PC;
+        %         cfg.fiducial.xzpoint  = fid.NCS.IH;
+        %         cfg.fiducial.right   = fid.SCS.RPA;
+        %         mri_realigned     = ft_volumerealign(cfg, individual_mri);
+        %
+        %         %%
+        %         cfg = [];
+        %         cfg.method = 'fiducial';
+        %         cfg.coordsys = 'neuromag';
+        %         cfg.fiducial.nas   = fid.SCS.NAS;
+        %         cfg.fiducial.lpa   = fid.SCS.LPA;
+        %         cfg.fiducial.rpa   = fid.SCS.RPA;
+        %         cfg.spmversion     = 'spm12';
+        %         mri_realigned = ft_volumerealign(cfg, mri_realigned);
+        %         %%
+        %
+        %         %%
+        %         %         ft_sourceplot([], mri_realigned); hold on
+        %         %         plot3(fid.SCS.NAS(1,1), fid.SCS.NAS(1,2), fid.SCS.NAS(1,3), 'm*');
+        %         %         plot3(fid.SCS.LPA(1,1), fid.SCS.LPA(1,2), fid.SCS.LPA(1,3), 'm*');
+        %         %         plot3(fid.SCS.RPA(1,1), fid.SCS.RPA(1,2), fid.SCS.RPA(1,3), 'm*');
+        %
+        %         %%
+        headshape = ft_read_headshape(cfg_main.hsfile);
+        headshape = ft_convert_units(headshape, 'mm');
+        %
+        %%
+        cfg = [];
+        cfg.method = 'headshape';
+        cfg.headshape.interactive = 'no';
+        cfg.headshape.icp = 'yes';
+        cfg.headshape.headshape = headshape;
+        cfg.coordsys = 'neuromag';
+        cfg.spmversion     = 'spm12';
+        mri_realigned = ft_volumerealign(cfg, individual_mri);
+        
+        %% == to check everything went right with co-reg!
+        ft_determine_coordsys(mri_realigned, 'interactive', 'no')
+        ft_plot_headshape(headshape);
+        view([-90, 0]),
         
         %%
         cfg = [];

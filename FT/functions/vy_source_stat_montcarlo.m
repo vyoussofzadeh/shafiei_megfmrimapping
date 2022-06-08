@@ -11,11 +11,12 @@ cfg.statistic        = 'depsamplesT';
 % cfg.statistic         = 'indepsamplesT'; 
 % cfg.correctm         = 'cluster';
 cfg.correctm         = 'fdr';
-cfg.clusteralpha     = 0.001;
+cfg.clusteralpha     = 0.05;
 % cfg.clusterstatistic = 'maxsum';
-cfg.tail             = 0;
-cfg.clustertail      = 0;
+cfg.tail             = -1; % -1, 1 or 0 (default = 0); one-sided or two-sided test
+cfg.clustertail      = -1;
 cfg.alpha            = 0.05;
+cfg.correcttail = 'alpha';
 cfg.numrandomization = 5000;
 
 % cfg = [];

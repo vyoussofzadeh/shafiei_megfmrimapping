@@ -1,4 +1,4 @@
-function conn_ratio = vy_connvis(source_conn_pst,source_conn_bsl,conn_par, headmodel, network_ratio,network_normalised)
+function conn_ratio = vy_connvis(source_conn_pst,source_conn_bsl,conn_par, headmodel, ~,~)
 
 source_conn_bsl.plvspctrm = source_conn_bsl.plvspctrm(source_conn_bsl.inside,source_conn_bsl.inside);
 source_conn_pst.plvspctrm = source_conn_pst.plvspctrm(source_conn_pst.inside,source_conn_pst.inside);

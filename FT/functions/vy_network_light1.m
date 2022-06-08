@@ -59,14 +59,16 @@ switch mtag
         data_in = vy_timelock(fep_data);
 end
 
-%%
+%% time-locked
+data_in1 = vy_timelock(data_in);
 
+%%
 cfg = [];
 cfg.grid = cfg_main.grid;
 cfg.headmodel = cfg_main.headmodel;
 cfg.mtd = 'lcmv';
 % cfg.mtd = 'sam';
-s_data = vy_source(cfg, data_in);
+s_data = vy_source(cfg, data_in1);
 % s_data = vy_source(t_data, cfg_main.grid, cfg_main.headmodel);
 
 %%
@@ -148,11 +150,11 @@ cfg.loc = 'max';
 cfg.template = cfg_main.template_mri;
 cfg.savefile = savefig;
 cfg.volnorm     = 2; % yes: 1
+cfg.method        = 'ortho';
 network_int = vy_source_plot(cfg, network_diff_lcmv);
 
 % vy_mapvisualisation(network_int_lcmv,gtm,0.6,savep)
 % vy_mapvisualisation(network_int,gtm,0.6, []);
-
 
 clear savepath
 savepath{1} = fullfile(cfg_main.outputdir,['_R_',cfg_main.subj]);
@@ -160,13 +162,13 @@ savepath{2} = fullfile(cfg_main.outputdir,['_L_',cfg_main.subj]);
 % vy_mapvisualisation(network_int,gtm,0.6, savepath);
 % vy_mapvisualisation(network_int,gtm, 0.6, []);
 
-% cfg = [];
-% cfg.subj = cfg_main.subj;
-% cfg.mask = gtm;
-% cfg.thre = 0.6;
-% cfg.savepath = savepath;
-% cfg.savepath = [];
-% vy_mapvisualisation(cfg, network_int);
+cfg = [];
+cfg.subj = cfg_main.subj;
+cfg.mask = gtm;
+cfg.thre = 0.6;
+cfg.savepath = savepath;
+cfg.savepath = [];
+vy_mapvisualisation(cfg, network_int);
 
 % savenii = fullfile(savepath,['n_',subj,'.nii']);
 % vy_savenifti(network_int_lcmv, gtm, savenii);

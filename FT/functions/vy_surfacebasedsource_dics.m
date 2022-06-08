@@ -3,15 +3,20 @@
 mtag = 'dics'; outd.vol = fullfile(outd.sub,'source_surface',mtag);
 cfg = [];
 cfg.grid = leadfield_mne;
-cfg.headmodel = individual_headmodel;
+cfg.headmodel = headmodel;
 cfg.sens = sens;
 cfg.outputdir = outd.vol;
+cfg.sourcmodel = sourcemodel;
 % cfg.template_grid = template_grid;
 % cfg.template_mri = template_mri;
 source_diff_dics = vy_source_dics_surface(cfg,ep_data);
 
+
 %%
-source_diff_dics.tri = sourcemodelT.tri; %ft_sourceplot need the triangulation information, add to source reconstruction.
+% Run_fft_4dics
+
+%%
+% source_diff_dics.tri = sourcemodelT.tri; %ft_sourceplot need the triangulation information, add to source reconstruction.
 
 
 % cfg = [];
@@ -70,16 +75,16 @@ source_diff_dics.tri = sourcemodelT.tri; %ft_sourceplot need the triangulation i
 % hcp_write_figure([savefig,'.png'], gcf, 'resolution', 300);
 
 %%
-
-source_diff_dics.time = 1;
+source_diff_dics1 = source_diff_dics;
+source_diff_dics1.time = 1;
 cfg = [];
 cfg.method          = 'surface';
 % cfg.method        = 'slice';
 cfg.funparameter    = 'pow';
 % cfg.maskparameter  = cfg.funparameter;
-m1 = source_diff_dics.pow;
+m1 = source_diff_dics1.pow;
 m1 = (m1 - min(m1(:))) ./ (max(m1(:)) - min(m1(:))); 
-source_diff_dics.pow = m1;
+source_diff_dics1.pow = m1;
 %         cfg.funcolormap     = 'hot';
 cfg.latency         = 1;     % The time-point to plot
 cfg.colorbar        = 'no';
@@ -104,7 +109,7 @@ cfg.opacitymap    = 'rampdown';
 % cfg.projmethod     = 'nearest';
 % cfg.surffile   = 'surface_inflated_both_caret.mat';
 % cfg.projthresh     = 0.8;
-ft_sourceplot(cfg, source_diff_dics);
+ft_sourceplot(cfg, source_diff_dics1);
 colorbar
 view([-100,0])
 light ('Position',[-70 20 50])

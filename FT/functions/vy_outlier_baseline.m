@@ -38,7 +38,7 @@ level(:, 7) = 1./(nanstd(dat, [], 2).^2);
 figure,
 for i=1:7
     subplot(4,2,i)
-    plot(level(:,i),'.');title(label{i})
+    plot(level(:,i),'.');title(label{i}), grid minor
 end
 
 % figure,

@@ -43,8 +43,9 @@ switch cfg_main.mtd
         cfg.lcmv.keepfilter  = 'yes';
         cfg.keeptrials       = 'yes';
         cfg.lcmv.fixedori    = 'yes'; % project on axis of most variance using SVD
-        cfg.lcmv.lambda      = '5%';
-%         cfg.lcmv.lambda      = '100%';
+%         cfg.lcmv.lambda      = '5%';
+%         cfg.lcmv.lambda      = '0.1%';
+        cfg.lcmv.lambda      = '100%';
         
         sourceAll = ft_sourceanalysis(cfg, data.app);
         

@@ -4,8 +4,8 @@ n = cfg_main.n; % ICs
 
 % satis = 0;
 disp('ica cleaning ...');
-if exist(cfg_main.savepath, 'file') == 2
-    load(cfg_main.savepath)
+if exist(cfg_main.savefile, 'file') == 2
+    load(cfg_main.savefile)
 else
     
     cfg = [];
@@ -13,6 +13,7 @@ else
     cfg.subj = cfg_main.subj;
     cfg.n = n;
     cfg.allpath = cfg_main.allpath;
+    cfg.savefig = 1;
     comp = vy_ica(cfg, f_data);
     title(savepath)
     cfg = [];
@@ -23,7 +24,7 @@ else
     cln_data = ft_rejectcomponent(cfg, comp, f_data);
     close all
     if cfg_main.saveflag == 1
-        save(cfg_main.savepath, 'cln_data', '-v7.3');
+        save(cfg_main.savefile, 'cln_data', '-v7.3');
     end
     
     %% back to new ft

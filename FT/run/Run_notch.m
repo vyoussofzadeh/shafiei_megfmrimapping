@@ -3,7 +3,7 @@ cfg.savefile = [];
 cfg.saveflag = 2;
 cfg.foilim = [2 40];
 cfg.plotflag  = 1;
-cfg.tapsmofrq = 5;
+cfg.tapsmofrq = 8;
 cfg.taper     = 'hanning';
 [freq,ff,psd] = vy_fft(cfg, cln_data);
 grid on
@@ -26,7 +26,7 @@ else
 end
 disp([num2str(fsb),'Hz freq was selected for notch filteting']);
 
-%%
+%% updated, 02/24/22
 cfg = [];
 cfg.bsfilter = 'yes';
 %     cfg.bsfreq = [29 32]; % or whatever you deem appropriate
@@ -35,6 +35,13 @@ cfg.bsfreq = [fsb-1 fsb+1]; % or whatever you deem appropriate
 cln_data = ft_preprocessing(cfg, cln_data);
 %     cfg.bsfreq = [2 12]; % or whatever you deem appropriate
 
+% cfg        = [];
+% cfg.dftfilter = 'yes';
+% cfg.dftfreq = fsb;
+% cfg.channel = {'MEG'};
+% cln_data        = ft_preprocessing(cfg, cln_data);
+
+%%
 cfg = [];
 cfg.savefile = [];
 cfg.saveflag = 2;

@@ -19,7 +19,7 @@ xlim([0,L+1])
 xlabel('ROI (=116)');
 ylabel(mask);
 set(gcf, 'Position', [100   100   1500   500]);
-set(gca,'FontSize',10,'XTickLabelRotation',90);
+set(gca,'FontSize',8,'XTickLabelRotation',90);
 set(gca,'FontName','HelveticaNeueLT Std Lt');
 grid
 hold on

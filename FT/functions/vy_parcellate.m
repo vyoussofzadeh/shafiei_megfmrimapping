@@ -6,7 +6,8 @@ function [data_int, data_intpar, coor] = vy_parcellate(data, atlas, mask)
 
 cfg = [];
 cfg.parameter    = mask;
-cfg.interpmethod = 'sph†ere_avg';
+cfg.interpmethod = 'sphere_avg';
+% cfg.interpmethod = 'smudge';
 data_int  = ft_sourceinterpolate(cfg, data, atlas);
 % data_int.dimord = 'pos';
 
@@ -20,7 +21,7 @@ data_intpar = ft_sourceparcellate(cfg, data_int, atlas);
 % cfg.method = 'ortho';
 % cfg.funparameter = 'pow';
 % ft_sourceplot(cfg, data_intpar);
-%
+% 
 % cfg = [];
 % cfg.funparameter = 'pow';
 % cfg.funcolormap   = 'jet';

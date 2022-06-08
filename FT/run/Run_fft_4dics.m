@@ -15,7 +15,7 @@ f_data.pst = vy_fft(cfg, ep_data.pst); f_data.pst.elec = cfg_main.sens;
 % PSD - sensor space
 psd_bsl = squeeze(mean(mean(abs(f_data.bsl.fourierspctrm),2),1));
 psd_pst = squeeze(mean(mean(abs(f_data.pst.fourierspctrm),2),1));
-ff = linspace(1, 40, length(psd_pst));
+ff = linspace(1, cfg.foilim(2), length(psd_pst));
 
 figure,plot(ff,psd_bsl)
 hold on
@@ -42,7 +42,10 @@ disp(['Suggested by TFR: ', num2str(f_sugg),'Hz']);
 %     if f_sugg > 12
 %         f = f_sugg;
 %     else
-f = input('FOI? '); tapsmofrq = 3;
+f = input('FOI (Hz)? '); 
+tapsmofrq = input('tapsmofrq, e.g. 4 Hz? '); 
+% tapsmofrq = 4;
+% f = 20;     tapsmofrq = 4;
 % f = 22;     tapsmofrq = 4;
 % f = 35;     tapsmofrq = 4;
 % f=27;     tapsmofrq = 10;

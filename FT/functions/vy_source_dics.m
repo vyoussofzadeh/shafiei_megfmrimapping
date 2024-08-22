@@ -50,19 +50,17 @@ if ask==1
     source_diff_dics.inside  = cfg_main.template_grid.inside;
     source_diff_dics.pow(isnan(source_diff_dics.pow))=0;
     
-    
-    
-    
+%     figure,plot(source_diff_dics.pow)
     
     %% Positive effects
-    %     cfg = [];
-    %     cfg.parameter = 'pow';
-    %     cfg.operation = '(x2-x1)/(x1+x2)';
-    %     source_diff_dics = ft_math(cfg,s_data_dics.pst,s_data_dics.bsl);
-    %     source_diff_dics.pos     = cfg_main.template_grid.pos;
-    %     source_diff_dics.dim     = cfg_main.template_grid.dim;
-    %     source_diff_dics.inside  = cfg_main.template_grid.inside;
-    %     source_diff_dics.pow(source_diff_dics.pow<0)=0;
+%         cfg = [];
+%         cfg.parameter = 'pow';
+%         cfg.operation = '(x1-x2)/(x1+x2)';
+%         source_diff_dics = ft_math(cfg,s_data_dics.pst,s_data_dics.bsl);
+%         source_diff_dics.pos     = cfg_main.template_grid.pos;
+%         source_diff_dics.dim     = cfg_main.template_grid.dim;
+%         source_diff_dics.inside  = cfg_main.template_grid.inside;
+%         source_diff_dics.pow(source_diff_dics.pow<0)=0;
     
     %%
     % outputdir_dics = fullfile(outputdir,'dics');

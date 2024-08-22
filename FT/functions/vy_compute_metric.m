@@ -67,7 +67,7 @@ if strcmp(info.metric, 'zvalue') || strcmp(info.metric, 'maxzvalue')
   sd   = sqrt(runss./runnum - (runsum./runnum).^2);
 end
 for i=1:info.ntrl
-  ft_progress(i/info.ntrl, 'computing metric %d of %d\n', i, info.ntrl);
+%   ft_progress(i/info.ntrl, 'computing metric %d of %d\n', i, info.ntrl);
   dat = preproc(info.data.trial{i}, info.data.label, offset2time(info.offset(i), info.fsample, size(info.data.trial{i}, 2)),[]); % not entirely sure whether info.data.time{i} is correct, so making it on the fly
   switch info.metric
     case 'var'

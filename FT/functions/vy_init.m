@@ -8,7 +8,8 @@ ft_path18 = fullfile(cfg.path_tools,'/ft_packages/fieldtrip_master');
 % ft_path = fullfile(cfg.path_tools,'/ft_packages/fieldtrip_20190419');
 
 % ft_path = ('/data/MEG/Vahab/Github/fieldtrip');
-ft_path = '/opt/matlab_toolboxes/ft_packages/fieldtrip_052522/fieldtrip-master';
+% ft_path = '/opt/matlab_toolboxes/ft_packages/fieldtrip_052522/fieldtrip-master';
+ft_path = '/opt/matlab_toolboxes/ft_packages/fieldtrip-20210517';
 addpath(ft_path);
 ft_defaults
 

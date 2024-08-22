@@ -13,7 +13,7 @@ cfg.tapsmofrq    = cfg_mian.tapsmofrq;
 cfg.taper        = cfg_mian.taper; %'hanning';
 % cfg.taper        = 'dpss';
 % cfg.pad          = cfg_mian.pad; % pad = 4
-cfg.pad          = 4;
+cfg.pad          = 20;
 freq             = ft_freqanalysis(cfg, data);
 psd = squeeze(mean(mean(abs(freq.fourierspctrm),2),1));
 ff = linspace(1, cfg.foilim(2), length(psd));

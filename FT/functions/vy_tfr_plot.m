@@ -57,6 +57,7 @@ axes(ax_main);
 im_main = imagesc(tim_interp, freq_interp, pow_interp);
 % note we're storing a handle to the image im_main, needed later on
 xlim([cfg_main.toi(1), cfg_main.toi(2)]);
+% ylim([cfg_main.fmin, cfg_main.fmax]);
 axis xy;
 xlabel('Time (s)');
 ylabel('Frequency (Hz)');
